@@ -23,8 +23,8 @@ static const char *fragmentShaderSource =
 
 OpenGLWidget::OpenGLWidget(QWidget *parent) :
     QGLWidget(parent),
-    m_zNear(3.0),
-    m_zFar(7.0),
+    m_nearPlane(3.0),
+    m_farPlane(7.0),
     m_fov(45.0),
     m_angularSpeed(0)
 {
@@ -32,6 +32,36 @@ OpenGLWidget::OpenGLWidget(QWidget *parent) :
 
 OpenGLWidget::~OpenGLWidget()
 {
+}
+
+void OpenGLWidget::setFov(float fov)
+{
+    if (m_fov == fov)
+        return;
+
+    m_fov = fov;
+    emit fovChanged(m_fov);
+    updateGL();
+}
+
+void OpenGLWidget::setNearPlane(float nearPlane)
+{
+    if (m_nearPlane == nearPlane)
+        return;
+
+    m_nearPlane = nearPlane;
+    emit nearPlaneChanged(m_nearPlane);
+    updateGL();
+}
+
+void OpenGLWidget::setFarPlane(float farPlane)
+{
+    if (m_farPlane == farPlane)
+        return;
+
+    m_farPlane = farPlane;
+    emit farPlaneChanged(m_farPlane);
+    updateGL();
 }
 
 void OpenGLWidget::mousePressEvent(QMouseEvent *e)
@@ -103,7 +133,7 @@ void OpenGLWidget::resizeGL(int w, int h)
     // Reset projection
     m_projection.setToIdentity();
     // Set perspective projection
-    m_projection.perspective(m_fov, aspect, m_zNear, m_zFar);
+    m_projection.perspective(m_fov, aspect, m_nearPlane, m_farPlane);
 
     // temporary, move this to proper location
     m_view.translate(0, 0, -5);

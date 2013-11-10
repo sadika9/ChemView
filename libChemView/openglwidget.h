@@ -13,6 +13,16 @@ public:
     explicit OpenGLWidget(QWidget *parent = 0);
     ~OpenGLWidget();
 
+public slots:
+    void setFov(float fov);
+    void setNearPlane(float nearPlane);
+    void setFarPlane(float farPlane);
+
+signals:
+    void fovChanged(float fov);
+    void nearPlaneChanged(float nearPlane);
+    void farPlaneChanged(float farPlane);
+
 protected:
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
@@ -27,9 +37,9 @@ protected:
 private:
     void draw();
 
-    qreal m_zNear;
-    qreal m_zFar;
-    qreal m_fov;
+    float m_fov;
+    float m_nearPlane;
+    float m_farPlane;
 
     GLuint m_modelLocation;
     GLuint m_viewLocation;
