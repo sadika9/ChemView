@@ -1,4 +1,5 @@
 QT       -= gui
+QT       += opengl
 
 QMAKE_CXXFLAGS += -std=c++11
 
@@ -10,10 +11,12 @@ HEADERS += \
     molecule.h \
     atom.h \
     bond.h \
-    cmlreader.h
+    cmlreader.h \
+    openglwidget.h
 
 SOURCES += \
     molecule.cpp \
     atom.cpp \
     bond.cpp \
-    cmlreader.cpp
+    cmlreader.cpp \
+    openglwidget.cpp
