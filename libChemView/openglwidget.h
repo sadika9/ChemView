@@ -1,6 +1,8 @@
 #ifndef OPENGLWIDGET_H
 #define OPENGLWIDGET_H
 
+#include "cubegeometry.h"
+
 #include <QGLWidget>
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
@@ -37,10 +39,13 @@ protected:
 private:
     void draw();
     void drawTriangle();
+    void drawCube();
 
     float m_fov;
     float m_nearPlane;
     float m_farPlane;
+
+    CubeGeometry m_cubeGeometry;
 
     GLuint m_modelLocation;
     GLuint m_viewLocation;

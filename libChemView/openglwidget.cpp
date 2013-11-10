@@ -3,15 +3,15 @@
 #include <QMouseEvent>
 
 static const char *vertexShaderSource =
-        "attribute highp vec4 posAttr;\n"
-        "attribute lowp vec4 colAttr;\n"
+        "attribute highp vec4 modelSpaceVertexPos;\n"
+        "attribute lowp vec4 colorAttr;\n"
         "varying lowp vec4 col;\n"
         "uniform highp mat4 model;\n"
         "uniform highp mat4 view;\n"
         "uniform highp mat4 projection;\n"
         "void main() {\n"
-        "   col = colAttr;\n"
-        "   gl_Position = projection * view * model * posAttr;\n"
+        "   col = vec4(0.0,0.0,1.0,1.0);\n"
+        "   gl_Position = projection * view * model * modelSpaceVertexPos;\n"
         "}\n";
 
 static const char *fragmentShaderSource =
@@ -124,6 +124,9 @@ void OpenGLWidget::initializeGL()
 
     // Use QBasicTimer because its faster than QTimer
     m_timer.start(12, this);
+
+    // Initialize geometries
+    m_cubeGeometry.init("modelSpaceVertexPos", "a_texcoord");
 }
 
 void OpenGLWidget::resizeGL(int w, int h)
@@ -180,8 +183,8 @@ void OpenGLWidget::initShaders()
     setlocale(LC_ALL, "");
 
     // Get attribute locations
-    m_vertexLocation = m_program.attributeLocation("posAttr");
-    m_colorLocation = m_program.attributeLocation("colAttr");
+    m_vertexLocation = m_program.attributeLocation("modelSpaceVertexPos");
+    m_colorLocation = m_program.attributeLocation("colorAttr");
     m_modelLocation = m_program.uniformLocation("model");
     m_viewLocation = m_program.uniformLocation("view");
     m_projectionLocation = m_program.uniformLocation("projection");
@@ -189,7 +192,8 @@ void OpenGLWidget::initShaders()
 
 void OpenGLWidget::draw()
 {
-    drawTriangle();
+//    drawTriangle();
+    drawCube();
 }
 
 void OpenGLWidget::drawTriangle()
@@ -222,13 +226,33 @@ void OpenGLWidget::drawTriangle()
     };
 
     glVertexAttribPointer(m_vertexLocation, 2, GL_FLOAT, GL_FALSE, 0, vertices);
-    glVertexAttribPointer(m_colorLocation, 3, GL_FLOAT, GL_FALSE, 0, colors);
+//    glVertexAttribPointer(m_colorLocation, 3, GL_FLOAT, GL_FALSE, 0, colors);
 
     glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
+//    glEnableVertexAttribArray(1);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    glDisableVertexAttribArray(1);
+//    glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(0);
+}
+
+void OpenGLWidget::drawCube()
+{
+    QMatrix4x4 proj;
+     proj.perspective(60, 4.0/3.0, 0.1, 100.0);
+
+     QMatrix4x4 view;
+     view.translate(0, 0, -5);
+     view.rotate(m_rotation);
+
+     QMatrix4x4 model;
+     model.translate(0, 0, -2);
+     model.rotate(100.0f * 2 /60, 0, 1, 0);
+
+     m_program.setUniformValue(m_modelLocation, model);
+     m_program.setUniformValue(m_viewLocation, view);
+     m_program.setUniformValue(m_projectionLocation, proj);
+
+     m_cubeGeometry.drawGeometry(&m_program);
 }

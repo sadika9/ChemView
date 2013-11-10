@@ -12,11 +12,13 @@ HEADERS += \
     atom.h \
     bond.h \
     cmlreader.h \
-    openglwidget.h
+    openglwidget.h \
+    cubegeometry.h
 
 SOURCES += \
     molecule.cpp \
     atom.cpp \
     bond.cpp \
     cmlreader.cpp \
-    openglwidget.cpp
+    openglwidget.cpp \
+    cubegeometry.cpp
