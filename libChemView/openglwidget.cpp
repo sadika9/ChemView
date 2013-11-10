@@ -66,6 +66,9 @@ void OpenGLWidget::setFarPlane(float farPlane)
 
 void OpenGLWidget::mousePressEvent(QMouseEvent *e)
 {
+    // Stop rotating when clicked
+    m_angularSpeed = 0.0;
+
     // Save mouse press position
     m_mousePressPosition = QVector2D(e->localPos());
 }
