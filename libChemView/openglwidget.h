@@ -36,6 +36,7 @@ protected:
 
 private:
     void draw();
+    void drawTriangle();
 
     float m_fov;
     float m_nearPlane;

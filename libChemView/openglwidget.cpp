@@ -189,6 +189,11 @@ void OpenGLWidget::initShaders()
 
 void OpenGLWidget::draw()
 {
+    drawTriangle();
+}
+
+void OpenGLWidget::drawTriangle()
+{
     QMatrix4x4 proj;
     proj.perspective(60, 4.0/3.0, 0.1, 100.0);
 
