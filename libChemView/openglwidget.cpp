@@ -23,8 +23,8 @@ static const char *fragmentShaderSource =
 
 OpenGLWidget::OpenGLWidget(QWidget *parent) :
     QGLWidget(parent),
-    m_nearPlane(3.0),
-    m_farPlane(7.0),
+    m_nearPlane(0.1),
+    m_farPlane(100.0),
     m_fov(45.0),
     m_angularSpeed(0)
 {
@@ -198,9 +198,6 @@ void OpenGLWidget::draw()
 
 void OpenGLWidget::drawTriangle()
 {
-    QMatrix4x4 proj;
-    proj.perspective(60, 4.0/3.0, 0.1, 100.0);
-
     QMatrix4x4 view;
     view.translate(0, 0, -5);
     view.rotate(m_rotation);
@@ -211,7 +208,7 @@ void OpenGLWidget::drawTriangle()
 
     m_program.setUniformValue(m_modelLocation, model);
     m_program.setUniformValue(m_viewLocation, view);
-    m_program.setUniformValue(m_projectionLocation, proj);
+    m_program.setUniformValue(m_projectionLocation, m_projection);
 
     GLfloat vertices[] = {
         0.0f, 0.707f,
@@ -239,9 +236,6 @@ void OpenGLWidget::drawTriangle()
 
 void OpenGLWidget::drawCube()
 {
-    QMatrix4x4 proj;
-     proj.perspective(60, 4.0/3.0, 0.1, 100.0);
-
      QMatrix4x4 view;
      view.translate(0, 0, -5);
      view.rotate(m_rotation);
@@ -252,7 +246,7 @@ void OpenGLWidget::drawCube()
 
      m_program.setUniformValue(m_modelLocation, model);
      m_program.setUniformValue(m_viewLocation, view);
-     m_program.setUniformValue(m_projectionLocation, proj);
+     m_program.setUniformValue(m_projectionLocation, m_projection);
 
      m_cubeGeometry.drawGeometry(&m_program);
 }
