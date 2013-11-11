@@ -34,6 +34,8 @@ signals:
 protected:
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
+    void wheelEvent(QWheelEvent *e);
+
     void timerEvent(QTimerEvent *);
 
     void initializeGL();

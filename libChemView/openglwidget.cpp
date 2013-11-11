@@ -5,6 +5,7 @@
 #include "bond.h"
 
 #include <QMouseEvent>
+#include <QApplication>
 
 
 static const char *vertexShaderSource =
@@ -28,11 +29,11 @@ static const char *fragmentShaderSource =
 
 OpenGLWidget::OpenGLWidget(QWidget *parent) :
     QGLWidget(parent),
+    m_fov(45.0),
     m_nearPlane(0.1),
     m_farPlane(100.0),
-    m_fov(45.0),
-    m_angularSpeed(0),
-    m_molecule(nullptr)
+    m_molecule(nullptr),
+    m_angularSpeed(0)
 {
 }
 
@@ -83,29 +84,58 @@ void OpenGLWidget::setFarPlane(float farPlane)
 
 void OpenGLWidget::mousePressEvent(QMouseEvent *e)
 {
-    // Stop rotating when clicked
-    m_angularSpeed = 0.0;
+    if (e->button() == Qt::LeftButton)
+    {
+        QApplication::setOverrideCursor(Qt::OpenHandCursor);
+        // Stop rotating when clicked
+        m_angularSpeed = 0.0;
 
-    // Save mouse press position
-    m_mousePressPosition = QVector2D(e->localPos());
+        // Save mouse press position
+        m_mousePressPosition = QVector2D(e->localPos());
+    }
+
+    e->accept();
 }
 
 void OpenGLWidget::mouseReleaseEvent(QMouseEvent *e)
 {
-    // Mouse release position - mouse press position
-    QVector2D diff = QVector2D(e->localPos()) - m_mousePressPosition;
+    if (e->button() == Qt::LeftButton)
+    {
+        QApplication::restoreOverrideCursor();
 
-    // Rotation axis is perpendicular to the mouse position difference vector
-    QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
+        // Mouse release position - mouse press position
+        QVector2D diff = QVector2D(e->localPos()) - m_mousePressPosition;
 
-    // Accelerate angular speed relative to the length of the mouse sweep
-    qreal acc = diff.length() / 100.0;
+        // Rotation axis is perpendicular to the mouse position difference vector
+        QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
 
-    // Calculate new rotation axis as weighted sum
-    m_rotationAxis = (m_rotationAxis * m_angularSpeed + n * acc).normalized();
+        // Accelerate angular speed relative to the length of the mouse sweep
+        qreal acc = diff.length() / 100.0;
 
-    // Increase angular speed
-    m_angularSpeed += acc;
+        // Calculate new rotation axis as weighted sum
+        m_rotationAxis = (m_rotationAxis * m_angularSpeed + n * acc).normalized();
+
+        // Increase angular speed
+        m_angularSpeed += acc;
+    }
+
+    e->accept();
+}
+
+void OpenGLWidget::wheelEvent(QWheelEvent *e)
+{
+    QPoint numDegrees = e->angleDelta() / 8;
+
+    if (!numDegrees.isNull())
+    {
+        QPoint numSteps = numDegrees / 15;
+        setFov(m_fov + numSteps.y() * 5);
+
+        resizeGL(width(), height());
+        updateGL();
+    }
+
+    e->accept();
 }
 
 void OpenGLWidget::timerEvent(QTimerEvent *)
@@ -267,14 +297,14 @@ void OpenGLWidget::drawBonds()
                 else if (i == 1)
                     model.translate((center - offset) / 2.0);
                 break;
-//            case 3:
-//                if (i == 0)
-//                    model.translate((center + QVector3D(0.05, 0.05, 0.1)));
-//                if (i == 1)
-//                    model.translate((center + QVector3D(0.05, 0.1, 0.05)));
-//                if (i == 2)
-//                    model.translate((center + QVector3D(0.1, 0.05, 0.05)));
-//                break;
+                //            case 3:
+                //                if (i == 0)
+                //                    model.translate((center + QVector3D(0.05, 0.05, 0.1)));
+                //                if (i == 1)
+                //                    model.translate((center + QVector3D(0.05, 0.1, 0.05)));
+                //                if (i == 2)
+                //                    model.translate((center + QVector3D(0.1, 0.05, 0.05)));
+                //                break;
             }
 
 
