@@ -1,7 +1,7 @@
 #ifndef OPENGLWIDGET_H
 #define OPENGLWIDGET_H
 
-#include "cubegeometry.h"
+#include "geometryengine.h"
 
 #include <QGLWidget>
 #include <QOpenGLFunctions>
@@ -45,7 +45,7 @@ private:
     float m_nearPlane;
     float m_farPlane;
 
-    CubeGeometry m_cubeGeometry;
+    GeometryEngine m_geometryEngine;
 
     GLuint m_modelLocation;
     GLuint m_viewLocation;

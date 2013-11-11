@@ -13,7 +13,8 @@ HEADERS += \
     bond.h \
     cmlreader.h \
     openglwidget.h \
-    cubegeometry.h
+    cubegeometry.h \
+    geometryengine.h
 
 SOURCES += \
     molecule.cpp \
@@ -21,4 +22,5 @@ SOURCES += \
     bond.cpp \
     cmlreader.cpp \
     openglwidget.cpp \
-    cubegeometry.cpp
+    cubegeometry.cpp \
+    geometryengine.cpp

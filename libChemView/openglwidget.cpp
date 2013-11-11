@@ -126,7 +126,7 @@ void OpenGLWidget::initializeGL()
     m_timer.start(12, this);
 
     // Initialize geometries
-    m_cubeGeometry.init("modelSpaceVertexPos", "a_texcoord");
+    m_geometryEngine.cube()->init("modelSpaceVertexPos", "a_texcoord");
 }
 
 void OpenGLWidget::resizeGL(int w, int h)
@@ -248,5 +248,5 @@ void OpenGLWidget::drawCube()
      m_program.setUniformValue(m_viewLocation, view);
      m_program.setUniformValue(m_projectionLocation, m_projection);
 
-     m_cubeGeometry.drawGeometry(&m_program);
+     m_geometryEngine.cube()->drawGeometry(&m_program);
 }
