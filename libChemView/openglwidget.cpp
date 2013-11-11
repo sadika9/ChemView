@@ -15,14 +15,14 @@ static const char *vertexShaderSource =
         "uniform highp mat4 view;\n"
         "uniform highp mat4 projection;\n"
         "void main() {\n"
-        "   col = vec4(0.0,1.0,1.0,1.0);\n"
+        "   //col = colorAttr;\n"
         "   gl_Position = projection * view * model * modelSpaceVertexPos;\n"
         "}\n";
 
 static const char *fragmentShaderSource =
-        "varying lowp vec4 col;\n"
+        "uniform lowp vec3 color;\n"
         "void main() {\n"
-        "   gl_FragColor = col;\n"
+        "   gl_FragColor = vec4(color, 1);\n"
         "}\n";
 
 
@@ -220,7 +220,7 @@ void OpenGLWidget::drawAtoms()
         // Calculate model view transformation
         QMatrix4x4 model;
         model.translate(atom->position());
-        model.scale(0.1);
+        model.scale(0.3);
 
         QMatrix4x4 view;
         view.translate(0, 0, -5);
@@ -230,6 +230,8 @@ void OpenGLWidget::drawAtoms()
         m_program.setUniformValue(m_modelLocation, model);
         m_program.setUniformValue(m_viewLocation, view);
         m_program.setUniformValue(m_projectionLocation, m_projection);
+
+        m_program.setUniformValue("color", atom->color());
 
         m_atomMesh.render(&m_program);
     }
@@ -254,7 +256,7 @@ void OpenGLWidget::drawBonds()
                 model.translate((center) / 2.0);
                 break;
             case 2:
-                QVector3D offset(0.05, 0.05, 0.05);
+                QVector3D offset(0.1, 0.1, 0.1);
 
                 if (i == 0)
                     model.translate((center + offset) / 2.0);
@@ -294,7 +296,7 @@ void OpenGLWidget::drawBonds()
 
             // Scale to fill up the distace between two atoms
             float length = fromPos.distanceToPoint(toPos) / 2.0;
-            model.scale(length, 0.01, 0.01);
+            model.scale(length, 0.04, 0.04);
 
 
             QMatrix4x4 view;
