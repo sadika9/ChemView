@@ -15,8 +15,6 @@ HEADERS += \
     bond.h \
     cmlreader.h \
     openglwidget.h \
-    cubegeometry.h \
-    geometryengine.h \
     mesh.h
 
 SOURCES += \
@@ -25,8 +23,6 @@ SOURCES += \
     bond.cpp \
     cmlreader.cpp \
     openglwidget.cpp \
-    cubegeometry.cpp \
-    geometryengine.cpp \
     mesh.cpp
 
 unix: CONFIG += link_pkgconfig

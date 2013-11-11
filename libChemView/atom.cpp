@@ -2,37 +2,37 @@
 
 Atom::Atom(QObject *parent) :
     QObject(parent),
-    position_(0, 0, 0)
+    m_position(0, 0, 0)
 {
 }
 
 QString Atom::element() const
 {
-    return element_;
+    return m_element;
 }
 
 void Atom::setElement(const QString &element)
 {
-    element_ = element;
+    m_element = element;
 }
 
 QVector3D Atom::position() const
 {
-    return position_;
+    return m_position;
 }
 
 void Atom::setPosition(const QVector3D &position)
 {
-    position_ = position;
+    m_position = position;
 }
 
 QVector3D Atom::color() const
 {
-    return color_;
+    return m_color;
 }
 
 void Atom::setColor(const QVector3D &color)
 {
-    color_ = color;
+    m_color = color;
 }
 

@@ -20,9 +20,9 @@ public:
     void setColor(const QVector3D &color);
 
 private:
-    QString element_;
-    QVector3D position_;
-    QVector3D color_;
+    QString m_element;
+    QVector3D m_position;
+    QVector3D m_color;
 };
 
 #endif // ATOM_H

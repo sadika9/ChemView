@@ -39,10 +39,10 @@ private:
     QVector3D atomColor(QString elementType);
 
 
-    QIODevice *device_;
-    Molecule *molecule_;
+    QIODevice *m_device;
+    Molecule *m_molecule;
 
-    QMap<QString, Atom *> atomMap;
+    QMap<QString, Atom *> m_atomMap;
 
     struct BondStruct
     {
@@ -50,7 +50,7 @@ private:
         QString toAtomId;
         short order;
     };
-    QVector<BondStruct> bonds;
+    QVector<BondStruct> m_bonds;
 };
 
 #endif // CMLREADER_H

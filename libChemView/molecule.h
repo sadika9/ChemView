@@ -23,8 +23,8 @@ public:
     void addBond(Bond *bond);
 
 private:
-    QVector<Atom *> atoms_;
-    QVector<Bond *> bonds_;
+    QVector<Atom *> m_atoms;
+    QVector<Bond *> m_bonds;
 };
 
 #endif // MOLECULE_H

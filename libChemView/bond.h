@@ -22,10 +22,10 @@ public:
     void setOrder(short order);
 
 private:
-    Atom *fromAtom_;
-    Atom *toAtom_;
+    Atom *m_fromAtom;
+    Atom *m_toAtom;
 
-    short order_;
+    short m_order;
 };
 
 #endif // BOND_H

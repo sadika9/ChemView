@@ -7,30 +7,30 @@ Molecule::Molecule(QObject *parent) :
 
 QVector<Atom *> Molecule::atoms() const
 {
-    return atoms_;
+    return m_atoms;
 }
 
 void Molecule::setAtoms(const QVector<Atom *> &atoms)
 {
-    atoms_ = atoms;
+    m_atoms = atoms;
 }
 
 QVector<Bond *> Molecule::bonds() const
 {
-    return bonds_;
+    return m_bonds;
 }
 
 void Molecule::setBonds(const QVector<Bond *> &bonds)
 {
-    bonds_ = bonds;
+    m_bonds = bonds;
 }
 
 void Molecule::addAtom(Atom *atom)
 {
-    atoms_.append(atom);
+    m_atoms.append(atom);
 }
 
 void Molecule::addBond(Bond *bond)
 {
-    bonds_.append(bond);
+    m_bonds.append(bond);
 }

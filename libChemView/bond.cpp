@@ -2,38 +2,38 @@
 
 Bond::Bond(QObject *parent) :
     QObject(parent),
-    fromAtom_(0),
-    toAtom_(0),
-    order_(1)
+    m_fromAtom(0),
+    m_toAtom(0),
+    m_order(1)
 {
 }
 
 Atom *Bond::fromAtom() const
 {
-    return fromAtom_;
+    return m_fromAtom;
 }
 
 void Bond::setFromAtom(Atom *fromAtom)
 {
-    fromAtom_ = fromAtom;
+    m_fromAtom = fromAtom;
 }
 
 Atom *Bond::toAtom() const
 {
-    return toAtom_;
+    return m_toAtom;
 }
 
 void Bond::setToAtom(Atom *toAtom)
 {
-    toAtom_ = toAtom;
+    m_toAtom = toAtom;
 }
 
 short Bond::order() const
 {
-    return order_;
+    return m_order;
 }
 
 void Bond::setOrder(short order)
 {
-    order_ = order;
+    m_order = order;
 }

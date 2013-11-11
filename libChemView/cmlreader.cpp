@@ -8,37 +8,37 @@
 
 CmlReader::CmlReader(QObject *parent) :
     QObject(parent),
-    device_(nullptr),
-    molecule_(new Molecule)
+    m_device(nullptr),
+    m_molecule(new Molecule)
 {
 }
 
 CmlReader::CmlReader(QIODevice *device, QObject *parent) :
     QObject(parent),
-    device_(device),
-    molecule_(new Molecule)
+    m_device(device),
+    m_molecule(new Molecule)
 {
 
 }
 
 QIODevice *CmlReader::device() const
 {
-    return device_;
+    return m_device;
 }
 
 void CmlReader::setDevice(QIODevice *device)
 {
-    device_ = device;
+    m_device = device;
 }
 
 Molecule *CmlReader::molecule() const
 {
-    return molecule_;
+    return m_molecule;
 }
 
 bool CmlReader::parse()
 {
-    QXmlStreamReader xml(device_);
+    QXmlStreamReader xml(m_device);
 
     while (!xml.atEnd() && !xml.hasError())
     {
@@ -72,16 +72,16 @@ bool CmlReader::parse()
     }
 
 
-    for (int i = 0; i < bonds.size(); ++i)
+    for (int i = 0; i < m_bonds.size(); ++i)
     {
-        BondStruct bs = bonds.at(i);
+        BondStruct bs = m_bonds.at(i);
 
         Bond *bond = new Bond;
-        bond->setFromAtom(atomMap.value(bs.fromAtomId));
-        bond->setToAtom(atomMap.value(bs.toAtomId));
+        bond->setFromAtom(m_atomMap.value(bs.fromAtomId));
+        bond->setToAtom(m_atomMap.value(bs.toAtomId));
         bond->setOrder(bs.order);
 
-        molecule_->addBond(bond);
+        m_molecule->addBond(bond);
     }
 
     return true;
@@ -114,8 +114,8 @@ bool CmlReader::parseAtom(QXmlStreamReader &xml)
 
     atom->setPosition(QVector3D(x, y, z));
 
-    atomMap[attributes.value("id").toString()] = atom;
-    molecule_->addAtom(atom);
+    m_atomMap[attributes.value("id").toString()] = atom;
+    m_molecule->addAtom(atom);
 
     return true;
 }
@@ -143,7 +143,7 @@ bool CmlReader::parseBond(QXmlStreamReader &xml)
     b.toAtomId = refs.at(1);
     b.order = attributes.value("order").toShort();
 
-    bonds.append(b);
+    m_bonds.append(b);
 
     return true;
 }
