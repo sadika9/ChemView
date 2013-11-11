@@ -15,10 +15,11 @@ Mesh::Mesh() :
 {
 }
 
-void Mesh::init(QString meshPath, QString position, QString texCoord)
+void Mesh::init(QString meshPath, QString vertexPos, QString vertexNormal, QString texCoord)
 {
-    m_position = position;
+    m_vertexPos = vertexPos;
     m_texCoord = texCoord;
+    m_vertexNormal = vertexNormal;
 
     initializeOpenGLFunctions();
 
@@ -72,7 +73,7 @@ void Mesh::render(QOpenGLShaderProgram *program)
         return;
     }
     // Vertices
-    int vertexLocation = program->attributeLocation(m_position);
+    int vertexLocation = program->attributeLocation(m_vertexPos);
     program->enableAttributeArray(vertexLocation);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, 0, (const void *)0);
@@ -84,10 +85,10 @@ void Mesh::render(QOpenGLShaderProgram *program)
     // glVertexAttribPointer(uvLocation, 2, GL_FLOAT, GL_FALSE, 0, (const void *)0);
 
     // Normals
-    // int normalLocation = program->attributeLocation(m_normalPos);
-    // program->enableAttributeArray(normalLocation);
-    // glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[normalbuffer]);
-    // glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, 0, (const void *)0);
+     int normalLocation = program->attributeLocation(m_vertexNormal);
+     program->enableAttributeArray(normalLocation);
+     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[1]);
+     glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, 0, (const void *)0);
 
 
     // Index buffer

@@ -9,21 +9,55 @@
 
 
 static const char *vertexShaderSource =
-        "attribute highp vec4 modelSpaceVertexPos;\n"
+        "attribute highp vec3 modelSpaceVertexPos;\n"
+        "attribute highp vec3 modelSpaceVertexNormal;\n"
         "attribute lowp vec4 colorAttr;\n"
+        "varying highp vec3 worldSpacePos;\n"
+        "varying highp vec3 cameraSpaceNormal;\n"
+        "varying highp vec3 cameraSpaceEyeDirection;\n"
+        "varying highp vec3 cameraSpaceLightDirection;\n"
         "varying lowp vec4 col;\n"
         "uniform highp mat4 model;\n"
         "uniform highp mat4 view;\n"
         "uniform highp mat4 projection;\n"
+        "uniform highp vec3 worldSpaceLightPosition;\n"
         "void main() {\n"
         "   //col = colorAttr;\n"
-        "   gl_Position = projection * view * model * modelSpaceVertexPos;\n"
+        "   gl_Position = projection * view * model * vec4(modelSpaceVertexPos, 1);\n"
+        "   worldSpacePos = (model * vec4(modelSpaceVertexPos ,1)).xyz;\n"
+        "   vec3 cameraSpaceVertexPos = (view * model * vec4(modelSpaceVertexPos ,1)).xyz;\n"
+        "   cameraSpaceEyeDirection = vec3(0,0,0) - cameraSpaceVertexPos;\n"
+        "   vec3 cameraSpaceLightPos = (view * vec4(worldSpaceLightPosition ,1)).xyz;\n"
+        "   cameraSpaceLightDirection = cameraSpaceLightPos + cameraSpaceEyeDirection;\n"
+        "   cameraSpaceNormal = (view * model * vec4(modelSpaceVertexNormal, 0)).xyz;\n"
         "}\n";
 
 static const char *fragmentShaderSource =
+        "varying highp vec3 worldSpacePos;\n"
+        "varying highp vec3 cameraSpaceNormal;\n"
+        "varying highp vec3 cameraSpaceEyeDirection;\n"
+        "varying highp vec3 cameraSpaceLightDirection;\n"
+        "uniform highp mat4 model;\n"
+        "uniform highp mat4 view;\n"
+        "uniform highp vec3 worldSpaceLightPosition;\n"
         "uniform lowp vec3 color;\n"
         "void main() {\n"
-        "   gl_FragColor = vec4(color, 1);\n"
+        "   vec3 LightColor = vec3(0.5,0.5,0.5);"
+        "   float LightPower = 30.0f;"
+        "   vec3 MaterialDiffuseColor = color.xyz;"
+        "   vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;"
+        "   vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);"
+        "   float distance = length(worldSpaceLightPosition - worldSpacePos);"
+        "   vec3 n = normalize(cameraSpaceNormal);"
+        "   vec3 l = normalize(cameraSpaceLightDirection);"
+        "   float cosTheta = clamp( dot( n,l ), 0,1 );"
+        "   vec3 E = normalize(cameraSpaceEyeDirection);"
+        "   vec3 R = reflect(-l,n);"
+        "   float cosAlpha = clamp( dot( E,R ), 0,1 );"
+        "   gl_FragColor = vec4("
+        "   MaterialAmbientColor +"
+        "   MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +"
+        "   MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance), 1);\n"
         "}\n";
 
 
@@ -173,8 +207,8 @@ void OpenGLWidget::initializeGL()
     m_timer.start(12, this);
 
     // Initialize meshes
-    m_atomMesh.init("://meshes/sphere.obj", "modelSpaceVertexPos", "a_texcoord");
-    m_bondMesh.init("://meshes/cylinder.obj", "modelSpaceVertexPos", "a_texcoord");
+    m_atomMesh.init("://meshes/sphere.obj", "modelSpaceVertexPos", "modelSpaceVertexNormal", "a_texcoord");
+    m_bondMesh.init("://meshes/cylinder.obj", "modelSpaceVertexPos", "modelSpaceVertexNormal", "a_texcoord");
 }
 
 void OpenGLWidget::resizeGL(int w, int h)
