@@ -2,11 +2,14 @@
 #define OPENGLWIDGET_H
 
 #include "geometryengine.h"
+#include "mesh.h"
 
 #include <QGLWidget>
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QBasicTimer>
+
+class Molecule;
 
 class OpenGLWidget : public QGLWidget, protected QOpenGLFunctions
 {
@@ -14,6 +17,10 @@ class OpenGLWidget : public QGLWidget, protected QOpenGLFunctions
 public:
     explicit OpenGLWidget(QWidget *parent = 0);
     ~OpenGLWidget();
+
+
+    Molecule *molecule() const;
+    void setMolecule(Molecule *molecule);
 
 public slots:
     void setFov(float fov);
@@ -38,14 +45,18 @@ protected:
 
 private:
     void draw();
-    void drawTriangle();
-    void drawCube();
+    void drawAtoms();
+    void drawBonds();
 
     float m_fov;
     float m_nearPlane;
     float m_farPlane;
 
+    Molecule *m_molecule;
+
     GeometryEngine m_geometryEngine;
+    Mesh m_atomMesh;
+    Mesh m_bondMesh;
 
     GLuint m_modelLocation;
     GLuint m_viewLocation;

@@ -1,6 +1,11 @@
 #include "openglwidget.h"
 
+#include "molecule.h"
+#include "atom.h"
+#include "bond.h"
+
 #include <QMouseEvent>
+
 
 static const char *vertexShaderSource =
         "attribute highp vec4 modelSpaceVertexPos;\n"
@@ -10,7 +15,7 @@ static const char *vertexShaderSource =
         "uniform highp mat4 view;\n"
         "uniform highp mat4 projection;\n"
         "void main() {\n"
-        "   col = vec4(0.0,0.0,1.0,1.0);\n"
+        "   col = vec4(0.0,1.0,1.0,1.0);\n"
         "   gl_Position = projection * view * model * modelSpaceVertexPos;\n"
         "}\n";
 
@@ -33,6 +38,17 @@ OpenGLWidget::OpenGLWidget(QWidget *parent) :
 OpenGLWidget::~OpenGLWidget()
 {
 }
+
+Molecule *OpenGLWidget::molecule() const
+{
+    return m_molecule;
+}
+
+void OpenGLWidget::setMolecule(Molecule *molecule)
+{
+    m_molecule = molecule;
+}
+
 
 void OpenGLWidget::setFov(float fov)
 {
@@ -126,7 +142,11 @@ void OpenGLWidget::initializeGL()
     m_timer.start(12, this);
 
     // Initialize geometries
-    m_geometryEngine.cube()->init("modelSpaceVertexPos", "a_texcoord");
+    m_atomMesh.init("://meshes/sphere.obj", "modelSpaceVertexPos", "a_texcoord");
+    m_bondMesh.init("://meshes/cylinder.obj", "modelSpaceVertexPos", "a_texcoord");
+
+//    m_geometryEngine.cube()->init("modelSpaceVertexPos", "a_texcoord");
+    //    m_geometryEngine.sphere()->init("://meshes/suzanne.obj", "modelSpaceVertexPos", "a_texcoord");
 }
 
 void OpenGLWidget::resizeGL(int w, int h)
@@ -192,61 +212,106 @@ void OpenGLWidget::initShaders()
 
 void OpenGLWidget::draw()
 {
-//    drawTriangle();
-    drawCube();
+    drawAtoms();
+    drawBonds();
 }
 
-void OpenGLWidget::drawTriangle()
+void OpenGLWidget::drawAtoms()
 {
-    QMatrix4x4 view;
-    view.translate(0, 0, -5);
-    view.rotate(m_rotation);
+    for (Atom *atom : m_molecule->atoms())
+    {
+        // Calculate model view transformation
+        QMatrix4x4 model;
+        model.translate(atom->position());
+        model.scale(0.1);
 
-    QMatrix4x4 model;
-    model.translate(0, 0, -2);
-    model.rotate(100.0f * 2 /60, 0, 1, 0);
+        QMatrix4x4 view;
+        view.translate(0, 0, -5);
+        view.rotate(m_rotation);
 
-    m_program.setUniformValue(m_modelLocation, model);
-    m_program.setUniformValue(m_viewLocation, view);
-    m_program.setUniformValue(m_projectionLocation, m_projection);
+        // Set model-view-projection matrix
+        m_program.setUniformValue(m_modelLocation, model);
+        m_program.setUniformValue(m_viewLocation, view);
+        m_program.setUniformValue(m_projectionLocation, m_projection);
 
-    GLfloat vertices[] = {
-        0.0f, 0.707f,
-        -0.5f, -0.5f,
-        0.5f, -0.5f
-    };
-
-    GLfloat colors[] = {
-        1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f
-    };
-
-    glVertexAttribPointer(m_vertexLocation, 2, GL_FLOAT, GL_FALSE, 0, vertices);
-//    glVertexAttribPointer(m_colorLocation, 3, GL_FLOAT, GL_FALSE, 0, colors);
-
-    glEnableVertexAttribArray(0);
-//    glEnableVertexAttribArray(1);
-
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-//    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(0);
+        m_atomMesh.render(&m_program);
+    }
 }
 
-void OpenGLWidget::drawCube()
+void OpenGLWidget::drawBonds()
 {
-     QMatrix4x4 view;
-     view.translate(0, 0, -5);
-     view.rotate(m_rotation);
+    for (Bond *bond : m_molecule->bonds())
+    {
+        QVector3D fromPos = bond->fromAtom()->position();
+        QVector3D toPos = bond->toAtom()->position();
+        QVector3D center = fromPos + toPos;
+        short order = bond->order();
 
-     QMatrix4x4 model;
-     model.translate(0, 0, -2);
-     model.rotate(100.0f * 2 /60, 0, 1, 0);
+        for (int i = 0; i < order; ++i)
+        {
+            QMatrix4x4 model;
 
-     m_program.setUniformValue(m_modelLocation, model);
-     m_program.setUniformValue(m_viewLocation, view);
-     m_program.setUniformValue(m_projectionLocation, m_projection);
+            switch (order)
+            {
+            case 1:
+                model.translate((center) / 2.0);
+                break;
+            case 2:
+                QVector3D offset(0.05, 0.05, 0.05);
 
-     m_geometryEngine.cube()->drawGeometry(&m_program);
+                if (i == 0)
+                    model.translate((center + offset) / 2.0);
+                else if (i == 1)
+                    model.translate((center - offset) / 2.0);
+                break;
+//            case 3:
+//                if (i == 0)
+//                    model.translate((center + QVector3D(0.05, 0.05, 0.1)));
+//                if (i == 1)
+//                    model.translate((center + QVector3D(0.05, 0.1, 0.05)));
+//                if (i == 2)
+//                    model.translate((center + QVector3D(0.1, 0.05, 0.05)));
+//                break;
+            }
+
+
+            /**
+             * Bond angle calculation code is based on a pseudo code
+             * from http://www.thjsmith.com/40
+             */
+
+            // This is the default direction for the cylinder
+            QVector3D x = QVector3D(1,0,0);
+
+            // Get diff between two points you want cylinder along
+            QVector3D p = (fromPos - toPos);
+
+            // Get CROSS product (the axis of rotation)
+            QVector3D t = QVector3D::crossProduct(x , p);
+
+            // Get angle. LENGTH is magnitude of the vector
+            double angle = 180 / M_PI * acos(QVector3D::dotProduct(x, p) / p.length());
+
+            // Rotate to align with two atoms
+            model.rotate(angle, t);
+
+            // Scale to fill up the distace between two atoms
+            float length = fromPos.distanceToPoint(toPos) / 2.0;
+            model.scale(length, 0.01, 0.01);
+
+
+            QMatrix4x4 view;
+            view.translate(0, 0, -5);
+            view.rotate(m_rotation);
+
+            // Set model-view-projection matrix
+            m_program.setUniformValue(m_modelLocation, model);
+            m_program.setUniformValue(m_viewLocation, view);
+            m_program.setUniformValue(m_projectionLocation, m_projection);
+
+            // Draw cube geometry
+            m_bondMesh.render(&m_program);
+        }
+    }
 }
+
