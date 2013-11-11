@@ -31,7 +31,8 @@ OpenGLWidget::OpenGLWidget(QWidget *parent) :
     m_nearPlane(0.1),
     m_farPlane(100.0),
     m_fov(45.0),
-    m_angularSpeed(0)
+    m_angularSpeed(0),
+    m_molecule(nullptr)
 {
 }
 
@@ -167,6 +168,9 @@ void OpenGLWidget::paintGL()
 {
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    if (!m_molecule)
+        return;
 
     draw();
 }
