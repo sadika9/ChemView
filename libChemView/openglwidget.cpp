@@ -141,12 +141,9 @@ void OpenGLWidget::initializeGL()
     // Use QBasicTimer because its faster than QTimer
     m_timer.start(12, this);
 
-    // Initialize geometries
+    // Initialize meshes
     m_atomMesh.init("://meshes/sphere.obj", "modelSpaceVertexPos", "a_texcoord");
     m_bondMesh.init("://meshes/cylinder.obj", "modelSpaceVertexPos", "a_texcoord");
-
-//    m_geometryEngine.cube()->init("modelSpaceVertexPos", "a_texcoord");
-    //    m_geometryEngine.sphere()->init("://meshes/suzanne.obj", "modelSpaceVertexPos", "a_texcoord");
 }
 
 void OpenGLWidget::resizeGL(int w, int h)

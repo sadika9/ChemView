@@ -1,7 +1,6 @@
 #ifndef OPENGLWIDGET_H
 #define OPENGLWIDGET_H
 
-#include "geometryengine.h"
 #include "mesh.h"
 
 #include <QGLWidget>
@@ -54,7 +53,6 @@ private:
 
     Molecule *m_molecule;
 
-    GeometryEngine m_geometryEngine;
     Mesh m_atomMesh;
     Mesh m_bondMesh;
 
