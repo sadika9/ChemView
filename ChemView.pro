@@ -2,6 +2,6 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     libChemView \
-    TestProj \
-    TestLibChemView \
+    #TestProj \
+    #TestLibChemView \
     MainWindow
