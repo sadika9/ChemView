@@ -3,7 +3,7 @@
 
 #include "cmlreader.h"
 
-#include <QFile>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -11,7 +11,22 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QFile file("../structures/drugs/4-acetamidophenyl_2-hydroxybenzoate.cml");
+    connect(ui->action_Open, &QAction::triggered, this, &MainWindow::openFile);
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::openFile()
+{
+    m_filePath = QFileDialog::getOpenFileName(this,
+                                              tr("Open CML File"),
+                                              m_filePath,
+                                              tr("CML Files (*.cml)"));
+
+    QFile file(m_filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qDebug() << file.errorString();
@@ -19,9 +34,4 @@ MainWindow::MainWindow(QWidget *parent) :
     CmlReader cmlReader(&file);
     cmlReader.parse();
     ui->glWidget->setMolecule(cmlReader.molecule());
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }

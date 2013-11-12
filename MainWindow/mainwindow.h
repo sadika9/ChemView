@@ -15,8 +15,13 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void openFile();
+
 private:
     Ui::MainWindow *ui;
+
+    QString m_filePath;
 };
 
 #endif // MAINWINDOW_H

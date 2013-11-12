@@ -15,7 +15,7 @@ class Mesh : protected QOpenGLFunctions
 public:
     Mesh();
 
-    void init(QString meshPath, QString position, QString texCoord);
+    void init(QString meshPath, QString vertexPos, QString vertexNormal, QString texCoord);
     void render(QOpenGLShaderProgram *program);
 
 private:
@@ -41,8 +41,9 @@ private:
 
     GLuint m_vboIds[3];
 
-    QString m_position;
+    QString m_vertexPos;
     QString m_texCoord;
+    QString m_vertexNormal;
 
     bool isInitSuccessful;
 };

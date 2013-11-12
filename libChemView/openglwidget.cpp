@@ -9,21 +9,55 @@
 
 
 static const char *vertexShaderSource =
-        "attribute highp vec4 modelSpaceVertexPos;\n"
+        "attribute highp vec3 modelSpaceVertexPos;\n"
+        "attribute highp vec3 modelSpaceVertexNormal;\n"
         "attribute lowp vec4 colorAttr;\n"
+        "varying highp vec3 worldSpacePos;\n"
+        "varying highp vec3 cameraSpaceNormal;\n"
+        "varying highp vec3 cameraSpaceEyeDirection;\n"
+        "varying highp vec3 cameraSpaceLightDirection;\n"
         "varying lowp vec4 col;\n"
         "uniform highp mat4 model;\n"
         "uniform highp mat4 view;\n"
         "uniform highp mat4 projection;\n"
+        "uniform highp vec3 worldSpaceLightPosition;\n"
         "void main() {\n"
         "   //col = colorAttr;\n"
-        "   gl_Position = projection * view * model * modelSpaceVertexPos;\n"
+        "   gl_Position = projection * view * model * vec4(modelSpaceVertexPos, 1);\n"
+        "   worldSpacePos = (model * vec4(modelSpaceVertexPos ,1)).xyz;\n"
+        "   vec3 cameraSpaceVertexPos = (view * model * vec4(modelSpaceVertexPos ,1)).xyz;\n"
+        "   cameraSpaceEyeDirection = vec3(0,0,0) - cameraSpaceVertexPos;\n"
+        "   vec3 cameraSpaceLightPos = (view * vec4(worldSpaceLightPosition ,1)).xyz;\n"
+        "   cameraSpaceLightDirection = cameraSpaceLightPos + cameraSpaceEyeDirection;\n"
+        "   cameraSpaceNormal = (view * model * vec4(modelSpaceVertexNormal, 0)).xyz;\n"
         "}\n";
 
 static const char *fragmentShaderSource =
+        "varying highp vec3 worldSpacePos;\n"
+        "varying highp vec3 cameraSpaceNormal;\n"
+        "varying highp vec3 cameraSpaceEyeDirection;\n"
+        "varying highp vec3 cameraSpaceLightDirection;\n"
+        "uniform highp mat4 model;\n"
+        "uniform highp mat4 view;\n"
+        "uniform highp vec3 worldSpaceLightPosition;\n"
         "uniform lowp vec3 color;\n"
         "void main() {\n"
-        "   gl_FragColor = vec4(color, 1);\n"
+        "   vec3 LightColor = vec3(1,1,1);"
+        "   float LightPower = 50.0f;"
+        "   vec3 MaterialDiffuseColor = color.xyz;"
+        "   vec3 MaterialAmbientColor = vec3(0.2,0.2,0.2) * MaterialDiffuseColor;"
+        "   vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);"
+        "   float distance = length(worldSpaceLightPosition - worldSpacePos);"
+        "   vec3 n = normalize(cameraSpaceNormal);"
+        "   vec3 l = normalize(cameraSpaceLightDirection);"
+        "   float cosTheta = clamp( dot( n,l ), 0,1 );"
+        "   vec3 E = normalize(cameraSpaceEyeDirection);"
+        "   vec3 R = reflect(-l,n);"
+        "   float cosAlpha = clamp( dot( E,R ), 0,1 );"
+        "   gl_FragColor = vec4("
+        "   MaterialAmbientColor +"
+        "   MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +"
+        "   MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance), 1);\n"
         "}\n";
 
 
@@ -49,6 +83,8 @@ Molecule *OpenGLWidget::molecule() const
 void OpenGLWidget::setMolecule(Molecule *molecule)
 {
     m_molecule = molecule;
+
+    updateGL();
 }
 
 
@@ -129,7 +165,18 @@ void OpenGLWidget::wheelEvent(QWheelEvent *e)
     if (!numDegrees.isNull())
     {
         QPoint numSteps = numDegrees / 15;
-        setFov(m_fov + numSteps.y() * 5);
+        float fov = m_fov + numSteps.y() * 5;
+
+        if (fov <= 0)
+        {
+            fov = 1;
+        }
+        else if (fov > 150)
+        {
+            fov = 150;
+        }
+
+        setFov(fov);
 
         resizeGL(width(), height());
         updateGL();
@@ -173,8 +220,8 @@ void OpenGLWidget::initializeGL()
     m_timer.start(12, this);
 
     // Initialize meshes
-    m_atomMesh.init("://meshes/sphere.obj", "modelSpaceVertexPos", "a_texcoord");
-    m_bondMesh.init("://meshes/cylinder.obj", "modelSpaceVertexPos", "a_texcoord");
+    m_atomMesh.init("://meshes/sphere.obj", "modelSpaceVertexPos", "modelSpaceVertexNormal", "a_texcoord");
+    m_bondMesh.init("://meshes/cylinder.obj", "modelSpaceVertexPos", "modelSpaceVertexNormal", "a_texcoord");
 }
 
 void OpenGLWidget::resizeGL(int w, int h)
@@ -241,13 +288,13 @@ void OpenGLWidget::initShaders()
     m_projectionLocation = m_program.uniformLocation("projection");
 }
 
-void OpenGLWidget::draw()
+inline void OpenGLWidget::draw()
 {
     drawAtoms();
     drawBonds();
 }
 
-void OpenGLWidget::drawAtoms()
+inline void OpenGLWidget::drawAtoms()
 {
     for (Atom *atom : m_molecule->atoms())
     {
@@ -257,13 +304,14 @@ void OpenGLWidget::drawAtoms()
         model.scale(0.3);
 
         QMatrix4x4 view;
-        view.translate(0, 0, -5);
+        view.translate(0, 0, -15);
         view.rotate(m_rotation);
 
         // Set model-view-projection matrix
         m_program.setUniformValue(m_modelLocation, model);
         m_program.setUniformValue(m_viewLocation, view);
         m_program.setUniformValue(m_projectionLocation, m_projection);
+        m_program.setUniformValue("worldSpaceLightPosition", QVector3D(4, 4, 4));
 
         m_program.setUniformValue("color", atom->color());
 
@@ -271,7 +319,7 @@ void OpenGLWidget::drawAtoms()
     }
 }
 
-void OpenGLWidget::drawBonds()
+inline void OpenGLWidget::drawBonds()
 {
     for (Bond *bond : m_molecule->bonds())
     {
@@ -314,33 +362,36 @@ void OpenGLWidget::drawBonds()
              */
 
             // This is the default direction for the cylinder
-            QVector3D x = QVector3D(1,0,0);
+            QVector3D y = QVector3D(0,1,0);
 
             // Get diff between two points you want cylinder along
             QVector3D p = (fromPos - toPos);
 
             // Get CROSS product (the axis of rotation)
-            QVector3D t = QVector3D::crossProduct(x , p);
+            QVector3D t = QVector3D::crossProduct(y , p);
 
             // Get angle. LENGTH is magnitude of the vector
-            double angle = 180 / M_PI * acos(QVector3D::dotProduct(x, p) / p.length());
+            double angle = 180 / M_PI * acos(QVector3D::dotProduct(y, p) / p.length());
 
             // Rotate to align with two atoms
             model.rotate(angle, t);
 
             // Scale to fill up the distace between two atoms
             float length = fromPos.distanceToPoint(toPos) / 2.0;
-            model.scale(length, 0.04, 0.04);
+            model.scale(0.04, length, 0.04);
 
 
             QMatrix4x4 view;
-            view.translate(0, 0, -5);
+            view.translate(0, 0, -15);
             view.rotate(m_rotation);
 
             // Set model-view-projection matrix
             m_program.setUniformValue(m_modelLocation, model);
             m_program.setUniformValue(m_viewLocation, view);
             m_program.setUniformValue(m_projectionLocation, m_projection);
+            m_program.setUniformValue("worldSpaceLightPosition", QVector3D(4, 4, 4));
+
+            m_program.setUniformValue("color", QVector3D(0.56470588, 0.56470588, 0.56470588));
 
             // Draw cube geometry
             m_bondMesh.render(&m_program);
