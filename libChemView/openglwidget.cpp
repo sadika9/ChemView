@@ -275,13 +275,13 @@ void OpenGLWidget::initShaders()
     m_projectionLocation = m_program.uniformLocation("projection");
 }
 
-void OpenGLWidget::draw()
+inline void OpenGLWidget::draw()
 {
     drawAtoms();
     drawBonds();
 }
 
-void OpenGLWidget::drawAtoms()
+inline void OpenGLWidget::drawAtoms()
 {
     for (Atom *atom : m_molecule->atoms())
     {
@@ -305,7 +305,7 @@ void OpenGLWidget::drawAtoms()
     }
 }
 
-void OpenGLWidget::drawBonds()
+inline void OpenGLWidget::drawBonds()
 {
     for (Bond *bond : m_molecule->bonds())
     {
