@@ -163,7 +163,18 @@ void OpenGLWidget::wheelEvent(QWheelEvent *e)
     if (!numDegrees.isNull())
     {
         QPoint numSteps = numDegrees / 15;
-        setFov(m_fov + numSteps.y() * 5);
+        float fov = m_fov + numSteps.y() * 5;
+
+        if (fov <= 0)
+        {
+            fov = 1;
+        }
+        else if (fov > 150)
+        {
+            fov = 150;
+        }
+
+        setFov(fov);
 
         resizeGL(width(), height());
         updateGL();
