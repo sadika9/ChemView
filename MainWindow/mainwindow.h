@@ -16,7 +16,8 @@ public:
     ~MainWindow();
 
 public slots:
-    void openFile();
+    void openFile(const QModelIndex &index);
+    void browseDir();
 
 private:
     Ui::MainWindow *ui;
