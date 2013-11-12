@@ -83,6 +83,8 @@ Molecule *OpenGLWidget::molecule() const
 void OpenGLWidget::setMolecule(Molecule *molecule)
 {
     m_molecule = molecule;
+
+    updateGL();
 }
 
 
