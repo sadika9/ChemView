@@ -298,6 +298,7 @@ inline void OpenGLWidget::drawAtoms()
         m_program.setUniformValue(m_modelLocation, model);
         m_program.setUniformValue(m_viewLocation, view);
         m_program.setUniformValue(m_projectionLocation, m_projection);
+        m_program.setUniformValue("worldSpaceLightPosition", QVector3D(4, 4, 4));
 
         m_program.setUniformValue("color", atom->color());
 
@@ -375,6 +376,9 @@ inline void OpenGLWidget::drawBonds()
             m_program.setUniformValue(m_modelLocation, model);
             m_program.setUniformValue(m_viewLocation, view);
             m_program.setUniformValue(m_projectionLocation, m_projection);
+            m_program.setUniformValue("worldSpaceLightPosition", QVector3D(4, 4, 4));
+
+            m_program.setUniformValue("color", QVector3D(0.56470588, 0.56470588, 0.56470588));
 
             // Draw cube geometry
             m_bondMesh.render(&m_program);
