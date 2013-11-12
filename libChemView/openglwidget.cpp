@@ -291,7 +291,7 @@ void OpenGLWidget::drawAtoms()
         model.scale(0.3);
 
         QMatrix4x4 view;
-        view.translate(0, 0, -5);
+        view.translate(0, 0, -15);
         view.rotate(m_rotation);
 
         // Set model-view-projection matrix
@@ -348,27 +348,27 @@ void OpenGLWidget::drawBonds()
              */
 
             // This is the default direction for the cylinder
-            QVector3D x = QVector3D(1,0,0);
+            QVector3D y = QVector3D(0,1,0);
 
             // Get diff between two points you want cylinder along
             QVector3D p = (fromPos - toPos);
 
             // Get CROSS product (the axis of rotation)
-            QVector3D t = QVector3D::crossProduct(x , p);
+            QVector3D t = QVector3D::crossProduct(y , p);
 
             // Get angle. LENGTH is magnitude of the vector
-            double angle = 180 / M_PI * acos(QVector3D::dotProduct(x, p) / p.length());
+            double angle = 180 / M_PI * acos(QVector3D::dotProduct(y, p) / p.length());
 
             // Rotate to align with two atoms
             model.rotate(angle, t);
 
             // Scale to fill up the distace between two atoms
             float length = fromPos.distanceToPoint(toPos) / 2.0;
-            model.scale(length, 0.04, 0.04);
+            model.scale(0.04, length, 0.04);
 
 
             QMatrix4x4 view;
-            view.translate(0, 0, -5);
+            view.translate(0, 0, -15);
             view.rotate(m_rotation);
 
             // Set model-view-projection matrix
