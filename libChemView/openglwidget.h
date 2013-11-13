@@ -70,10 +70,11 @@ private:
 
     QBasicTimer m_timer;
 
-    QVector2D m_mousePressPosition;
+    QVector2D m_lastMousePosition;
     QVector3D m_rotationAxis;
     qreal m_angularSpeed;
     QQuaternion m_rotation;
+    QVector3D m_translation;
 
     QOpenGLShaderProgram m_program;
 };

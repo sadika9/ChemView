@@ -67,7 +67,8 @@ OpenGLWidget::OpenGLWidget(QWidget *parent) :
     m_nearPlane(0.1),
     m_farPlane(100.0),
     m_molecule(nullptr),
-    m_angularSpeed(0)
+    m_angularSpeed(0),
+    m_translation(QVector3D(0, 0, -15))
 {
 }
 
@@ -120,21 +121,31 @@ void OpenGLWidget::setFarPlane(float farPlane)
 
 void OpenGLWidget::mousePressEvent(QMouseEvent *e)
 {
-    // Stop rotating when clicked
-    m_angularSpeed = 0.0;
-
     if (e->button() == Qt::LeftButton)
     {
+        // Stop rotating when clicked
+        m_angularSpeed = 0.0;
+
         QApplication::setOverrideCursor(Qt::ClosedHandCursor);
     }
     else if (e->button() == Qt::RightButton)
     {
+        // Stop rotating when clicked
+        m_angularSpeed = 0.0;
+
         QApplication::setOverrideCursor(Qt::OpenHandCursor);
         // Stop rotating when clicked
         m_angularSpeed = 0.0;
 
         // Save mouse press position
-        m_mousePressPosition = QVector2D(e->localPos());
+        m_lastMousePosition = QVector2D(e->localPos());
+    }
+    else if (e->button() == Qt::MiddleButton)
+    {
+        QApplication::setOverrideCursor(Qt::SizeAllCursor);
+
+        // Save mouse press position
+        m_lastMousePosition = QVector2D(e->localPos());
     }
 
     e->accept();
@@ -147,7 +158,7 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent *e)
     if (e->button() == Qt::RightButton)
     {
         // Mouse release position - mouse press position
-        QVector2D diff = QVector2D(e->localPos()) - m_mousePressPosition;
+        QVector2D diff = QVector2D(e->localPos()) - m_lastMousePosition;
 
         // Rotation axis is perpendicular to the mouse position difference vector
         QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
@@ -167,22 +178,34 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent *e)
 
 void OpenGLWidget::mouseMoveEvent(QMouseEvent *e)
 {
-    if (!(e->buttons() & Qt::LeftButton))
-        return;
+    if (e->buttons() & Qt::LeftButton)
+    {
+        // Mouse release position - mouse press position
+        QVector2D diff = QVector2D(e->localPos()) - m_lastMousePosition;
+        m_lastMousePosition = QVector2D(e->localPos());
 
+        // Rotation axis is perpendicular to the mouse position difference vector
+        QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
 
-    // Mouse release position - mouse press position
-    QVector2D diff = QVector2D(e->localPos()) - m_mousePressPosition;
-    m_mousePressPosition = QVector2D(e->localPos());
+        // Update rotation
+        m_rotation = QQuaternion::fromAxisAndAngle(n, 2) * m_rotation;
 
-    // Rotation axis is perpendicular to the mouse position difference vector
-    QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
+        // Update scene
+        updateGL();
+    }
+    else if (e->buttons() & Qt::MiddleButton)
+    {
+        QVector2D diff = (QVector2D(e->localPos()) - m_lastMousePosition) / 100;
+        m_lastMousePosition = QVector2D(e->localPos());
 
-    // Update rotation
-    m_rotation = QQuaternion::fromAxisAndAngle(n, 2) * m_rotation;
+        QVector3D n = QVector3D(diff.x(), -diff.y(), 0);
+        m_translation += n;
 
-    // Update scene
-    updateGL();
+        float z = m_translation.z();
+        m_translation.setZ(z);
+
+        updateGL();
+    }
 }
 
 void OpenGLWidget::wheelEvent(QWheelEvent *e)
@@ -331,7 +354,7 @@ inline void OpenGLWidget::drawAtoms()
         model.scale(0.3);
 
         QMatrix4x4 view;
-        view.translate(0, 0, -15);
+        view.translate(m_translation);
         view.rotate(m_rotation);
 
         // Set model-view-projection matrix
@@ -431,7 +454,7 @@ inline void OpenGLWidget::drawBonds()
 
 
             QMatrix4x4 view;
-            view.translate(0, 0, -15);
+            view.translate(m_translation);
             view.rotate(m_rotation);
 
             // Set model-view-projection matrix
