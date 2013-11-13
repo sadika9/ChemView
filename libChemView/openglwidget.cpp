@@ -359,10 +359,17 @@ inline void OpenGLWidget::drawBonds()
                 if (i == 0)
                     model.translate((tot + cross1) / 2.0);
                 if (i == 1)
-                    model.translate((tot + (-cross1/2)+cross2*(sqrt3_2)) / 2.0);
+                    model.translate((tot + (-cross1/2) + cross2 * (sqrt3_2)) / 2.0);
                 if (i == 2)
-                    model.translate((tot + (-cross1/2)-cross2*(sqrt3_2)) / 2.0);
+                    model.translate((tot + (-cross1/2) - cross2 * (sqrt3_2)) / 2.0);
                 break;
+            }
+            case 4:
+            {
+                if (i == 0)
+                    model.translate((tot + cross1 + QVector3D(1, 1, 1)) / 2.0);
+//                else if (i == 1)
+//                    model.translate((tot + cross1 / 2) / 2.0);
             }
             }
 
