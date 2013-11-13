@@ -120,7 +120,14 @@ void OpenGLWidget::setFarPlane(float farPlane)
 
 void OpenGLWidget::mousePressEvent(QMouseEvent *e)
 {
+    // Stop rotating when clicked
+    m_angularSpeed = 0.0;
+
     if (e->button() == Qt::LeftButton)
+    {
+        QApplication::setOverrideCursor(Qt::ClosedHandCursor);
+    }
+    else if (e->button() == Qt::RightButton)
     {
         QApplication::setOverrideCursor(Qt::OpenHandCursor);
         // Stop rotating when clicked
@@ -135,10 +142,10 @@ void OpenGLWidget::mousePressEvent(QMouseEvent *e)
 
 void OpenGLWidget::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (e->button() == Qt::LeftButton)
-    {
-        QApplication::restoreOverrideCursor();
+    QApplication::restoreOverrideCursor();
 
+    if (e->button() == Qt::RightButton)
+    {
         // Mouse release position - mouse press position
         QVector2D diff = QVector2D(e->localPos()) - m_mousePressPosition;
 
@@ -156,6 +163,26 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent *e)
     }
 
     e->accept();
+}
+
+void OpenGLWidget::mouseMoveEvent(QMouseEvent *e)
+{
+    if (!(e->buttons() & Qt::LeftButton))
+        return;
+
+
+    // Mouse release position - mouse press position
+    QVector2D diff = QVector2D(e->localPos()) - m_mousePressPosition;
+    m_mousePressPosition = QVector2D(e->localPos());
+
+    // Rotation axis is perpendicular to the mouse position difference vector
+    QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
+
+    // Update rotation
+    m_rotation = QQuaternion::fromAxisAndAngle(n, 2) * m_rotation;
+
+    // Update scene
+    updateGL();
 }
 
 void OpenGLWidget::wheelEvent(QWheelEvent *e)
@@ -359,17 +386,21 @@ inline void OpenGLWidget::drawBonds()
                 if (i == 0)
                     model.translate((tot + cross1) / 2.0);
                 if (i == 1)
-                    model.translate((tot + (-cross1/2) + cross2 * (sqrt3_2)) / 2.0);
+                    model.translate((tot + (-cross1 / 2) + cross2 * sqrt3_2) / 2.0);
                 if (i == 2)
-                    model.translate((tot + (-cross1/2) - cross2 * (sqrt3_2)) / 2.0);
+                    model.translate((tot + (-cross1 / 2) - cross2 * sqrt3_2) / 2.0);
                 break;
             }
             case 4:
             {
                 if (i == 0)
-                    model.translate((tot + cross1 + QVector3D(1, 1, 1)) / 2.0);
-//                else if (i == 1)
-//                    model.translate((tot + cross1 / 2) / 2.0);
+                    model.translate((tot + cross1 + cross2) / 2.0);
+                else if (i == 1)
+                    model.translate((tot - cross1 - cross2) / 2.0);
+                else if (i == 2)
+                    model.translate((tot + cross1 - cross2) / 2.0);
+                else if (i == 3)
+                    model.translate((tot - cross1 + cross2) / 2.0);
             }
             }
 
