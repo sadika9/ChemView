@@ -325,8 +325,15 @@ inline void OpenGLWidget::drawBonds()
     {
         QVector3D fromPos = bond->fromAtom()->position();
         QVector3D toPos = bond->toAtom()->position();
-        QVector3D center = fromPos + toPos;
         short order = bond->order();
+
+
+        // Following variables are used to calculate positions between bonds.
+        QVector3D tot = fromPos + toPos;
+        QVector3D diff = fromPos - toPos;
+        QVector3D cross1 = QVector3D::crossProduct(fromPos , toPos).normalized() / 4;
+        QVector3D cross2 = QVector3D::crossProduct(cross1 , diff).normalized() / 4;
+        double sqrt3_2 = sqrt(3) / 2;
 
         for (int i = 0; i < order; ++i)
         {
@@ -335,24 +342,28 @@ inline void OpenGLWidget::drawBonds()
             switch (order)
             {
             case 1:
-                model.translate((center) / 2.0);
+            {
+                model.translate((tot) / 2.0);
                 break;
+            }
             case 2:
-                QVector3D offset(0.1, 0.1, 0.1);
-
+            {
                 if (i == 0)
-                    model.translate((center + offset) / 2.0);
+                    model.translate((tot + cross2) / 2.0);
                 else if (i == 1)
-                    model.translate((center - offset) / 2.0);
+                    model.translate((tot - cross2) / 2.0);
                 break;
-                //            case 3:
-                //                if (i == 0)
-                //                    model.translate((center + QVector3D(0.05, 0.05, 0.1)));
-                //                if (i == 1)
-                //                    model.translate((center + QVector3D(0.05, 0.1, 0.05)));
-                //                if (i == 2)
-                //                    model.translate((center + QVector3D(0.1, 0.05, 0.05)));
-                //                break;
+            }
+            case 3:
+            {
+                if (i == 0)
+                    model.translate((tot + cross1) / 2.0);
+                if (i == 1)
+                    model.translate((tot + (-cross1/2)+cross2*(sqrt3_2)) / 2.0);
+                if (i == 2)
+                    model.translate((tot + (-cross1/2)-cross2*(sqrt3_2)) / 2.0);
+                break;
+            }
             }
 
 
