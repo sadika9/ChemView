@@ -208,6 +208,19 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
+void OpenGLWidget::mouseDoubleClickEvent(QMouseEvent *)
+{
+    m_fov = 45.0;
+    m_nearPlane = 0.1;
+    m_farPlane = 100.0,
+    m_angularSpeed = 0;
+    m_translation = QVector3D(0, 0, -15);
+    m_rotation = QQuaternion();
+
+    resizeGL(width(), height());
+    updateGL();
+}
+
 void OpenGLWidget::wheelEvent(QWheelEvent *e)
 {
     QPoint numDegrees = e->angleDelta() / 8;
