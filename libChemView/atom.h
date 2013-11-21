@@ -19,10 +19,14 @@ public:
     QVector3D color() const;
     void setColor(const QVector3D &color);
 
+    float radius() const;
+    void setRadius(float radius);
+
 private:
     QString m_element;
     QVector3D m_position;
     QVector3D m_color;
+    float m_radius;
 };
 
 #endif // ATOM_H

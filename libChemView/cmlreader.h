@@ -37,6 +37,7 @@ private:
     bool parseBond(QXmlStreamReader &xml);
 
     QVector3D atomColor(QString elementType);
+    float atomRadius(QString elementType);
 
 
     QIODevice *m_device;

@@ -364,7 +364,7 @@ inline void OpenGLWidget::drawAtoms()
         // Calculate model view transformation
         QMatrix4x4 model;
         model.translate(atom->position());
-        model.scale(0.3);
+        model.scale(atom->radius());
 
         QMatrix4x4 view;
         view.translate(m_translation);

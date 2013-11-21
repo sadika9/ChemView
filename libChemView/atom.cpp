@@ -36,3 +36,14 @@ void Atom::setColor(const QVector3D &color)
     m_color = color;
 }
 
+float Atom::radius() const
+{
+    return m_radius;
+}
+
+void Atom::setRadius(float radius)
+{
+    m_radius = radius;
+}
+
+

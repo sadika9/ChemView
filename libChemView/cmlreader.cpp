@@ -107,6 +107,7 @@ bool CmlReader::parseAtom(QXmlStreamReader &xml)
     QString elementType = attributes.value("elementType").toString();
     atom->setElement(elementType);
     atom->setColor(atomColor(elementType));
+    atom->setRadius(atomRadius(elementType));
 
     float x = attributes.value("x3").toFloat();
     float y = attributes.value("y3").toFloat();
@@ -158,4 +159,16 @@ QVector3D CmlReader::atomColor(QString elementType)
         return QVector3D(1.0f, 0.0f, 0.0f);             // red
     else
         return QVector3D(0.98039216f, 0.68627451f, 0.74509804f);   // pink
+}
+
+float CmlReader::atomRadius(QString elementType)
+{
+    if (QString("H").compare(elementType) == 0)
+        return 0.25;
+    else if (QString("C").compare(elementType) == 0)
+        return 0.5;
+    else if (QString("O").compare(elementType) == 0)
+        return 0.4;
+    else
+        return 0.3;
 }
