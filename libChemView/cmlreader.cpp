@@ -161,6 +161,18 @@ QVector3D CmlReader::atomColor(QString elementType)
         return QVector3D(0, 0, 0.54509804);             // dark blue
     else if (QString("S").compare(elementType) == 0)
         return QVector3D(1, 1, 0);                      // yellow
+    else if (QString("B").compare(elementType) == 0)
+        return QVector3D(1, 0.70980392, 0.70980392);
+    else if (QString("Cl").compare(elementType) == 0)
+        return QVector3D(0.12156863, 0.94117647, 0.12156863);
+    else if (QString("Pt").compare(elementType) == 0)
+        return QVector3D(0.81568627, 0.81568627, 0.87843137);
+    else if (QString("P").compare(elementType) == 0)
+        return QVector3D(1, 0.50196078, 0);
+    else if (QString("F").compare(elementType) == 0)
+        return QVector3D(0.56470588, 0.87843137, 0.31372549);
+    else if (QString("Fe").compare(elementType) == 0)
+        return QVector3D(0.87843137, 0.41803279, 0.2);
     else
         return QVector3D(0.98039216f, 0.68627451f, 0.74509804f);   // pink
 }
