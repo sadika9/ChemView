@@ -134,7 +134,7 @@ bool CmlReader::parseBond(QXmlStreamReader &xml)
 
 
     QString str = attributes.value("atomRefs2").toString();
-    QStringList refs = str.split(" ");
+    QStringList refs = str.split(" ", QString::SkipEmptyParts);
 
     if (refs.size() != 2)
         return false;
