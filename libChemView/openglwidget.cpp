@@ -305,8 +305,29 @@ void OpenGLWidget::resizeGL(int w, int h)
     qreal aspect = qreal(w) / qreal(h ? h : 1);
     // Reset projection
     m_projection.setToIdentity();
+
+
     // Set perspective projection
     m_projection.perspective(m_fov, aspect, m_nearPlane, m_farPlane);
+
+    /*
+    // Perspective frustum projection
+    // using m_fov to zoom in/out purpose
+    // other constants are used to get proper viewing.
+    float wFrustum = w * m_fov / (2.0 * 100000);
+    float hFrustum = h * m_fov / (2.0 * 100000);
+    m_projection.frustum(-wFrustum, wFrustum, -hFrustum, hFrustum, m_nearPlane, m_farPlane);
+    */
+
+    /*
+    // Orthographic projection
+    // here we use m_fov to zoom in/out purpose
+    // other constants are used to get proper viewing.
+    float wOrtho = w * m_fov / (2.0 * 1000);
+    float hOrtho = h * m_fov / (2.0 * 1000);
+    m_projection.ortho(-wOrtho, wOrtho, -hOrtho, hOrtho, m_nearPlane, m_farPlane);
+    */
+
 
     // temporary, move this to proper location
     m_view.translate(0, 0, -5);
