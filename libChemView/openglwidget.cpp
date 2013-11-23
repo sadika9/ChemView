@@ -157,7 +157,7 @@ void OpenGLWidget::mouseDoubleClickEvent(QMouseEvent *)
     m_fov = 45.0;
     m_zNearPlane = 0.1;
     m_zFarPlane = 100.0,
-    m_angularSpeed = 0;
+            m_angularSpeed = 0;
     m_translation = QVector3D(0, 0, -15);
     m_rotation = QQuaternion();
 
@@ -246,9 +246,9 @@ void OpenGLWidget::resizeGL(int w, int h)
 
     // Calculate aspect ratio
     qreal aspect = qreal(w) / qreal(h ? h : 1);
+
     // Reset projection
     m_projection.setToIdentity();
-
 
     // Set perspective projection
     m_projection.perspective(m_fov, aspect, m_zNearPlane, m_zFarPlane);
@@ -280,7 +280,16 @@ void OpenGLWidget::paintGL()
     if (!m_molecule)
         return;
 
-    draw();
+
+    QMatrix4x4 view;
+    view.translate(m_translation);
+
+    m_program.setUniformValue(m_viewLocation, view);
+    m_program.setUniformValue(m_projectionLocation, m_projection);
+    m_program.setUniformValue(m_lightLocation, QVector3D(10, 10, 10));
+
+    drawAtoms();
+    drawBonds();
 }
 
 void OpenGLWidget::initShaders()
@@ -289,12 +298,12 @@ void OpenGLWidget::initShaders()
     setlocale(LC_NUMERIC, "C");
 
     // Compile vertex shader
-        if (!m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, "://shaders/vertex.vsh"))
-            close();
+    if (!m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, "://shaders/vertex.vsh"))
+        close();
 
     // Compile fragment shader
-        if (!m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, "://shaders/fragment.fsh"))
-            close();
+    if (!m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, "://shaders/fragment.fsh"))
+        close();
 
     // Link shader pipeline
     if (!m_program.link())
@@ -314,19 +323,6 @@ void OpenGLWidget::initShaders()
     m_viewLocation = m_program.uniformLocation("view");
     m_projectionLocation = m_program.uniformLocation("projection");
     m_lightLocation = m_program.uniformLocation("worldSpaceLightPosition");
-}
-
-inline void OpenGLWidget::draw()
-{
-    QMatrix4x4 view;
-    view.translate(m_translation);
-
-    m_program.setUniformValue(m_viewLocation, view);
-    m_program.setUniformValue(m_projectionLocation, m_projection);
-    m_program.setUniformValue(m_lightLocation, QVector3D(10, 10, 10));
-
-    drawAtoms();
-    drawBonds();
 }
 
 inline void OpenGLWidget::drawAtoms()

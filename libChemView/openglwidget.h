@@ -47,7 +47,6 @@ protected:
     void initShaders();
 
 private:
-    void draw();
     void drawAtoms();
     void drawBonds();
 
