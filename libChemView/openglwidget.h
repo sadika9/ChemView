@@ -60,14 +60,15 @@ private:
     Mesh m_atomMesh;
     Mesh m_bondMesh;
 
+    // uniform/attribute locations on shaders
     GLuint m_modelLocation;
     GLuint m_viewLocation;
     GLuint m_projectionLocation;
     GLuint m_vertexLocation;
     GLuint m_colorLocation;
+    GLuint m_lightLocation;
 
     QMatrix4x4 m_projection;
-    QMatrix4x4 m_view;
 
     QBasicTimer m_timer;
 

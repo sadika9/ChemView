@@ -11,7 +11,6 @@
 static const char *vertexShaderSource =
         "attribute highp vec3 modelSpaceVertexPos;\n"
         "attribute highp vec3 modelSpaceVertexNormal;\n"
-        "attribute lowp vec4 colorAttr;\n"
         "varying highp vec3 worldSpacePos;\n"
         "varying highp vec3 cameraSpaceNormal;\n"
         "varying highp vec3 cameraSpaceEyeDirection;\n"
@@ -22,7 +21,6 @@ static const char *vertexShaderSource =
         "uniform highp mat4 projection;\n"
         "uniform highp vec3 worldSpaceLightPosition;\n"
         "void main() {\n"
-        "   //col = colorAttr;\n"
         "   gl_Position = projection * view * model * vec4(modelSpaceVertexPos, 1);\n"
         "   worldSpacePos = (model * vec4(modelSpaceVertexPos ,1)).xyz;\n"
         "   vec3 cameraSpaceVertexPos = (view * model * vec4(modelSpaceVertexPos ,1)).xyz;\n"
@@ -239,7 +237,6 @@ void OpenGLWidget::wheelEvent(QWheelEvent *e)
         setFov(fov);
 
         resizeGL(width(), height());
-        updateGL();
     }
 
     e->accept();
@@ -324,11 +321,6 @@ void OpenGLWidget::resizeGL(int w, int h)
     float hOrtho = h * m_fov / (2.0 * 1000);
     m_projection.ortho(-wOrtho, wOrtho, -hOrtho, hOrtho, m_nearPlane, m_farPlane);
     */
-
-
-    // temporary, move this to proper location
-    m_view.translate(0, 0, -5);
-    //    m_view.rotate(rotation);
 }
 
 void OpenGLWidget::paintGL()
@@ -372,10 +364,11 @@ void OpenGLWidget::initShaders()
 
     // Get attribute locations
     m_vertexLocation = m_program.attributeLocation("modelSpaceVertexPos");
-    m_colorLocation = m_program.attributeLocation("colorAttr");
+    m_colorLocation = m_program.uniformLocation("color");
     m_modelLocation = m_program.uniformLocation("model");
     m_viewLocation = m_program.uniformLocation("view");
     m_projectionLocation = m_program.uniformLocation("projection");
+    m_lightLocation = m_program.uniformLocation("worldSpaceLightPosition");
 }
 
 inline void OpenGLWidget::draw()
@@ -385,7 +378,7 @@ inline void OpenGLWidget::draw()
 
     m_program.setUniformValue(m_viewLocation, view);
     m_program.setUniformValue(m_projectionLocation, m_projection);
-    m_program.setUniformValue("worldSpaceLightPosition", QVector3D(10, 10, 10));
+    m_program.setUniformValue(m_lightLocation, QVector3D(10, 10, 10));
 
     drawAtoms();
     drawBonds();
@@ -402,7 +395,7 @@ inline void OpenGLWidget::drawAtoms()
         model.scale(atom->radius());
 
         m_program.setUniformValue(m_modelLocation, model);
-        m_program.setUniformValue("color", atom->color() / 255.0f);
+        m_program.setUniformValue(m_colorLocation, atom->color() / 255.0f);
 
         m_atomMesh.render(&m_program);
     }
@@ -493,7 +486,7 @@ inline void OpenGLWidget::drawBonds()
             model.scale(0.04, length, 0.04);
 
             m_program.setUniformValue(m_modelLocation, model);
-            m_program.setUniformValue("color", QVector3D(0.56470588f, 0.56470588f, 0.56470588f));
+            m_program.setUniformValue(m_colorLocation, QVector3D(0.56470588f, 0.56470588f, 0.56470588f));
 
             // Draw cube geometry
             m_bondMesh.render(&m_program);
