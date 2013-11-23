@@ -43,7 +43,7 @@ static const char *fragmentShaderSource =
         "uniform lowp vec3 color;\n"
         "void main() {\n"
         "   vec3 LightColor = vec3(1,1,1);"
-        "   float LightPower = 50.0f;"
+        "   float LightPower = 200.0f;"
         "   vec3 MaterialDiffuseColor = color.xyz;"
         "   vec3 MaterialAmbientColor = vec3(0.2,0.2,0.2) * MaterialDiffuseColor;"
         "   vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);"
@@ -385,7 +385,7 @@ inline void OpenGLWidget::draw()
 
     m_program.setUniformValue(m_viewLocation, view);
     m_program.setUniformValue(m_projectionLocation, m_projection);
-    m_program.setUniformValue("worldSpaceLightPosition", QVector3D(4, 4, 4));
+    m_program.setUniformValue("worldSpaceLightPosition", QVector3D(10, 10, 10));
 
     drawAtoms();
     drawBonds();
