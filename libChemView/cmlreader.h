@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QXmlStreamReader>
+#include <QVector3D>
 #include <QMap>
 
 class QIODevice;
@@ -20,6 +21,8 @@ public:
     explicit CmlReader(QObject *parent = 0);
     explicit CmlReader(QIODevice * device, QObject *parent = 0);
 
+    ~CmlReader();
+
     QIODevice *device() const;
     void setDevice(QIODevice *device);
 
@@ -33,6 +36,7 @@ public:
 
 
 private:
+    void initAtomData();
     bool parseAtom(QXmlStreamReader &xml);
     bool parseBond(QXmlStreamReader &xml);
 
@@ -52,6 +56,9 @@ private:
         short order;
     };
     QVector<BondStruct> m_bonds;
+
+    // key: element type, value: pair of radius and color in rgb
+    QMap<QString, QPair<float, QVector3D>> m_atomData;
 };
 
 #endif // CMLREADER_H
