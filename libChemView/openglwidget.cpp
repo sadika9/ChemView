@@ -372,12 +372,13 @@ inline void OpenGLWidget::drawAtoms()
     {
         // Calculate model view transformation
         QMatrix4x4 model;
+        model.rotate(m_rotation);
         model.translate(atom->position());
         model.scale(atom->radius());
 
         QMatrix4x4 view;
         view.translate(m_translation);
-        view.rotate(m_rotation);
+        // view.rotate(m_rotation);
 
         // Set model-view-projection matrix
         m_program.setUniformValue(m_modelLocation, model);
@@ -410,6 +411,7 @@ inline void OpenGLWidget::drawBonds()
         for (int i = 0; i < order; ++i)
         {
             QMatrix4x4 model;
+            model.rotate(m_rotation);
 
             switch (order)
             {
@@ -477,7 +479,7 @@ inline void OpenGLWidget::drawBonds()
 
             QMatrix4x4 view;
             view.translate(m_translation);
-            view.rotate(m_rotation);
+            // view.rotate(m_rotation);
 
             // Set model-view-projection matrix
             m_program.setUniformValue(m_modelLocation, model);
