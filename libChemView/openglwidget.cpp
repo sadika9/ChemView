@@ -64,8 +64,8 @@ static const char *fragmentShaderSource =
 OpenGLWidget::OpenGLWidget(QWidget *parent) :
     QGLWidget(parent),
     m_fov(45.0),
-    m_nearPlane(0.1),
-    m_farPlane(100.0),
+    m_zNearPlane(0.1),
+    m_zFarPlane(100.0),
     m_molecule(nullptr),
     m_angularSpeed(0),
     m_translation(QVector3D(0, 0, -15))
@@ -99,23 +99,23 @@ void OpenGLWidget::setFov(float fov)
     updateGL();
 }
 
-void OpenGLWidget::setNearPlane(float nearPlane)
+void OpenGLWidget::setZNearPlane(float zNearPlane)
 {
-    if (m_nearPlane == nearPlane)
+    if (m_zNearPlane == zNearPlane)
         return;
 
-    m_nearPlane = nearPlane;
-    emit nearPlaneChanged(m_nearPlane);
+    m_zNearPlane = zNearPlane;
+    emit zNearPlaneChanged(m_zNearPlane);
     updateGL();
 }
 
-void OpenGLWidget::setFarPlane(float farPlane)
+void OpenGLWidget::setZFarPlane(float zFarPlane)
 {
-    if (m_farPlane == farPlane)
+    if (m_zFarPlane == zFarPlane)
         return;
 
-    m_farPlane = farPlane;
-    emit farPlaneChanged(m_farPlane);
+    m_zFarPlane = zFarPlane;
+    emit zFarPlaneChanged(m_zFarPlane);
     updateGL();
 }
 
@@ -211,8 +211,8 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent *e)
 void OpenGLWidget::mouseDoubleClickEvent(QMouseEvent *)
 {
     m_fov = 45.0;
-    m_nearPlane = 0.1;
-    m_farPlane = 100.0,
+    m_zNearPlane = 0.1;
+    m_zFarPlane = 100.0,
     m_angularSpeed = 0;
     m_translation = QVector3D(0, 0, -15);
     m_rotation = QQuaternion();
@@ -308,7 +308,7 @@ void OpenGLWidget::resizeGL(int w, int h)
 
 
     // Set perspective projection
-    m_projection.perspective(m_fov, aspect, m_nearPlane, m_farPlane);
+    m_projection.perspective(m_fov, aspect, m_zNearPlane, m_zFarPlane);
 
     /*
     // Perspective frustum projection

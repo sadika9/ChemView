@@ -23,13 +23,13 @@ public:
 
 public slots:
     void setFov(float fov);
-    void setNearPlane(float nearPlane);
-    void setFarPlane(float farPlane);
+    void setZNearPlane(float zNearPlane);
+    void setZFarPlane(float zFarPlane);
 
 signals:
     void fovChanged(float fov);
-    void nearPlaneChanged(float nearPlane);
-    void farPlaneChanged(float farPlane);
+    void zNearPlaneChanged(float zNearPlane);
+    void zFarPlaneChanged(float zFarPlane);
 
 protected:
     void mousePressEvent(QMouseEvent *e);
@@ -52,8 +52,8 @@ private:
     void drawBonds();
 
     float m_fov;
-    float m_nearPlane;
-    float m_farPlane;
+    float m_zNearPlane;
+    float m_zFarPlane;
 
     Molecule *m_molecule;
 
