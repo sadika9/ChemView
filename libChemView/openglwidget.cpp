@@ -427,7 +427,7 @@ inline void OpenGLWidget::drawBonds()
             model.scale(0.04, length, 0.04);
 
             m_program.setUniformValue(m_modelLocation, model);
-            m_program.setUniformValue(m_colorLocation, QVector3D(0.56470588f, 0.56470588f, 0.56470588f));
+            m_program.setUniformValue(m_colorLocation, QVector3D(0.564706f, 0.564706f, 0.564706f));
 
             // Draw cube geometry
             m_bondMesh.render(&m_program);
