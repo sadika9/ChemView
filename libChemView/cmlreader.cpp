@@ -24,7 +24,7 @@ CmlReader::CmlReader(QIODevice *device, QObject *parent) :
 
 CmlReader::~CmlReader()
 {
-    delete m_molecule;
+//    delete m_molecule;
 }
 
 QIODevice *CmlReader::device() const
