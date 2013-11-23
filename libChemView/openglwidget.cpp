@@ -44,7 +44,7 @@ static const char *fragmentShaderSource =
         "void main() {\n"
         "   vec3 LightColor = vec3(1,1,1);"
         "   float LightPower = 50.0f;"
-        "   vec3 MaterialDiffuseColor = color.xyz;"
+        "   vec3 MaterialDiffuseColor = normalize(color).xyz;"
         "   vec3 MaterialAmbientColor = vec3(0.2,0.2,0.2) * MaterialDiffuseColor;"
         "   vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);"
         "   float distance = length(worldSpaceLightPosition - worldSpacePos);"
