@@ -201,9 +201,6 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent *e)
         QVector3D n = QVector3D(diff.x(), -diff.y(), 0);
         m_translation += n;
 
-        float z = m_translation.z();
-        m_translation.setZ(z);
-
         updateGL();
     }
 }
@@ -383,6 +380,13 @@ void OpenGLWidget::initShaders()
 
 inline void OpenGLWidget::draw()
 {
+    QMatrix4x4 view;
+    view.translate(m_translation);
+
+    m_program.setUniformValue(m_viewLocation, view);
+    m_program.setUniformValue(m_projectionLocation, m_projection);
+    m_program.setUniformValue("worldSpaceLightPosition", QVector3D(4, 4, 4));
+
     drawAtoms();
     drawBonds();
 }
@@ -397,16 +401,7 @@ inline void OpenGLWidget::drawAtoms()
         model.translate(atom->position());
         model.scale(atom->radius());
 
-        QMatrix4x4 view;
-        view.translate(m_translation);
-        // view.rotate(m_rotation);
-
-        // Set model-view-projection matrix
         m_program.setUniformValue(m_modelLocation, model);
-        m_program.setUniformValue(m_viewLocation, view);
-        m_program.setUniformValue(m_projectionLocation, m_projection);
-        m_program.setUniformValue("worldSpaceLightPosition", QVector3D(4, 4, 4));
-
         m_program.setUniformValue("color", atom->color() / 255.0f);
 
         m_atomMesh.render(&m_program);
@@ -497,18 +492,8 @@ inline void OpenGLWidget::drawBonds()
             float length = fromPos.distanceToPoint(toPos) / 2.0;
             model.scale(0.04, length, 0.04);
 
-
-            QMatrix4x4 view;
-            view.translate(m_translation);
-            // view.rotate(m_rotation);
-
-            // Set model-view-projection matrix
             m_program.setUniformValue(m_modelLocation, model);
-            m_program.setUniformValue(m_viewLocation, view);
-            m_program.setUniformValue(m_projectionLocation, m_projection);
-            m_program.setUniformValue("worldSpaceLightPosition", QVector3D(4, 4, 4));
-
-            m_program.setUniformValue("color", QVector3D(0.56470588, 0.56470588, 0.56470588));
+            m_program.setUniformValue("color", QVector3D(0.56470588f, 0.56470588f, 0.56470588f));
 
             // Draw cube geometry
             m_bondMesh.render(&m_program);
