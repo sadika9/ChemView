@@ -29,4 +29,5 @@ unix: CONFIG += link_pkgconfig
 unix: PKGCONFIG += assimp
 
 RESOURCES += \
-    meshes.qrc
+    meshes.qrc \
+    shaders.qrc
