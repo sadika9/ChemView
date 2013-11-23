@@ -44,7 +44,7 @@ static const char *fragmentShaderSource =
         "void main() {\n"
         "   vec3 LightColor = vec3(1,1,1);"
         "   float LightPower = 50.0f;"
-        "   vec3 MaterialDiffuseColor = normalize(color).xyz;"
+        "   vec3 MaterialDiffuseColor = color.xyz;"
         "   vec3 MaterialAmbientColor = vec3(0.2,0.2,0.2) * MaterialDiffuseColor;"
         "   vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);"
         "   float distance = length(worldSpaceLightPosition - worldSpacePos);"
@@ -407,7 +407,7 @@ inline void OpenGLWidget::drawAtoms()
         m_program.setUniformValue(m_projectionLocation, m_projection);
         m_program.setUniformValue("worldSpaceLightPosition", QVector3D(4, 4, 4));
 
-        m_program.setUniformValue("color", atom->color());
+        m_program.setUniformValue("color", atom->color() / 255.0f);
 
         m_atomMesh.render(&m_program);
     }
