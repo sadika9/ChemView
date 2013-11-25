@@ -34,3 +34,4 @@ else:unix: PRE_TARGETDEPS += $$OUT_PWD/../libChemView/libChemView.a
 
 unix: CONFIG += link_pkgconfig
 unix: PKGCONFIG += assimp
+unix: PKGCONFIG += openbabel-2.0
