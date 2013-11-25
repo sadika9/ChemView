@@ -19,9 +19,11 @@ public:
     Molecule *molecule() const;
 
     bool readFile(QString fileName);
+    bool readSmiString(QString smiString);
 
 private:
     bool toMolecule(OpenBabel::OBMol *obMol);
+    bool buildGeometry(OpenBabel::OBMol *obMol);
 
     Molecule *m_molecule;
 };

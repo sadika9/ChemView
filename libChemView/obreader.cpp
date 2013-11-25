@@ -76,6 +76,45 @@ bool OBReader::readFile(QString fileName)
     return true;
 }
 
+bool OBReader::readSmiString(QString smiString)
+{
+    using namespace OpenBabel;
+
+    OBConversion conv;
+
+    if (!conv.SetInFormat("smi"))
+    {
+        qDebug() << "Error in conv.SetInFormat().";
+        return false;
+    }
+
+    OBMol obMol;
+
+    if (!conv.ReadString(&obMol, smiString.toStdString()))
+    {
+        qDebug() << "Error occured while reading the smi string.";
+        return false;
+    }
+
+    if (!obMol.Has3D())
+    {
+        if (!buildGeometry(&obMol))
+        {
+            qDebug() << "Error in buildGeometry()";
+            return false;
+        }
+    }
+
+    if (!toMolecule(&obMol))
+    {
+        qDebug() << "Could not convert OBMol to Molecule.";
+        return false;
+    }
+
+
+    return true;
+}
+
 bool OBReader::toMolecule(OpenBabel::OBMol *obMol)
 {
     using namespace OpenBabel;
@@ -119,5 +158,17 @@ bool OBReader::toMolecule(OpenBabel::OBMol *obMol)
     }
 
     return true;
+}
+
+bool OBReader::buildGeometry(OpenBabel::OBMol *obMol)
+{
+    bool state = false;
+
+    OpenBabel::OBBuilder builder;
+
+    state = builder.Build(*obMol);
+    state &= obMol->AddHydrogens();
+
+    return state;
 }
 
