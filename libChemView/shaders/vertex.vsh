@@ -15,13 +15,13 @@ uniform highp vec3 worldSpaceLightPosition;
 void main(void)
 {
     gl_Position = projection * view * model * vec4(modelSpaceVertexPos, 1);
-    worldSpacePos = (model * vec4(modelSpaceVertexPos ,1));
+    worldSpacePos = (model * vec4(modelSpaceVertexPos ,1)).xyz;
 
-    vec3 cameraSpaceVertexPos = (view * model * vec4(modelSpaceVertexPos ,1));
+    vec3 cameraSpaceVertexPos = (view * model * vec4(modelSpaceVertexPos ,1)).xyz;
     cameraSpaceEyeDirection = vec3(0,0,0) - cameraSpaceVertexPos;
 
-    vec3 cameraSpaceLightPos = (view * vec4(worldSpaceLightPosition ,1));
+    vec3 cameraSpaceLightPos = (view * vec4(worldSpaceLightPosition ,1)).xyz;
     cameraSpaceLightDirection = cameraSpaceLightPos + cameraSpaceEyeDirection;
 
-    cameraSpaceNormal = (view * model * vec4(modelSpaceVertexNormal, 0));
-};
+    cameraSpaceNormal = (view * model * vec4(modelSpaceVertexNormal, 0)).xyz;
+}

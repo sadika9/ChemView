@@ -31,4 +31,4 @@ void main(void)
                 MaterialAmbientColor +
                 MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance * distance) +
                 MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance * distance), 1);
-};
+}
