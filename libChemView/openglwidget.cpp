@@ -336,7 +336,7 @@ inline void OpenGLWidget::drawAtoms()
         model.scale(atom->radius());
 
         m_program.setUniformValue(m_modelLocation, model);
-        m_program.setUniformValue(m_colorLocation, atom->color() / 255.0f);
+        m_program.setUniformValue(m_colorLocation, atom->color());
 
         m_atomMesh.render(&m_program);
     }

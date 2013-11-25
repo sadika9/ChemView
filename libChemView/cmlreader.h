@@ -56,7 +56,7 @@ private:
         short order;
     };
     QVector<BondStruct> m_bonds;
-
+public:
     // key: element type, value: pair of radius and color in rgb
     QMap<QString, QPair<float, QVector3D>> m_atomData;
 };
