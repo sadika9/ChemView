@@ -12,6 +12,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    enum class FileReader {CmlReader, ObReader};
+
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
@@ -21,6 +23,8 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
+
+    FileReader m_reader;
 
     QString m_filePath;
 };

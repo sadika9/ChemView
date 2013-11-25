@@ -327,13 +327,15 @@ void OpenGLWidget::initShaders()
 
 inline void OpenGLWidget::drawAtoms()
 {
+    const float atomRadiusScale = 0.5f;
+
     for (Atom *atom : m_molecule->atoms())
     {
         // Calculate model view transformation
         QMatrix4x4 model;
         model.rotate(m_rotation);
         model.translate(atom->position());
-        model.scale(atom->radius());
+        model.scale(atom->radius() * atomRadiusScale);
 
         m_program.setUniformValue(m_modelLocation, model);
         m_program.setUniformValue(m_colorLocation, atom->color()/* / 255.0f*/);

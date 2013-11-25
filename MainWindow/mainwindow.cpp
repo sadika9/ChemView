@@ -15,11 +15,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     m_filePath = QDir::currentPath();
+    m_reader = FileReader::ObReader;
 
     QFileSystemModel *model = new QFileSystemModel(this);
     model->setRootPath(m_filePath);
     model->setReadOnly(true);
-    model->setNameFilters(QStringList("*.cml"));
+    //    model->setNameFilters(QStringList("*.cml"));
     model->setNameFilterDisables(false);
 
     ui->treeView->setModel(model);
@@ -51,26 +52,31 @@ void MainWindow::openFile(const QModelIndex &index)
     QFileSystemModel *model = (QFileSystemModel *)ui->treeView->model();
     m_filePath = model->filePath(index);
 
-//    QFile file(m_filePath);
-//    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-//    {
-//        qDebug() << file.errorString();
-//        return;
-//    }
+    if (m_reader == FileReader::CmlReader)
+    {
+        QFile file(m_filePath);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            qDebug() << file.errorString();
+            return;
+        }
 
-//    CmlReader cmlReader(&file);
+        CmlReader cmlReader(&file);
 
-//    if (!cmlReader.parse())
-//    {
-//        qDebug() << "Invalid CML file.";
-//        return;
-//    }
+        if (!cmlReader.parse())
+        {
+            qDebug() << "Invalid CML file.";
+            return;
+        }
 
-//    ui->glWidget->setMolecule(cmlReader.molecule());
-
-    OBReader obReader;
-    obReader.readFile(m_filePath);
-    ui->glWidget->setMolecule(obReader.molecule());
+        ui->glWidget->setMolecule(cmlReader.molecule());
+    }
+    else // ObReader
+    {
+        OBReader obReader;
+        obReader.readFile(m_filePath);
+        ui->glWidget->setMolecule(obReader.molecule());
+    }
 }
 
 void MainWindow::browseDir()
