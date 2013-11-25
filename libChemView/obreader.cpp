@@ -6,9 +6,12 @@
 
 #include <openbabel/data.h>
 #include <openbabel/obconversion.h>
+#include <openbabel/builder.h>
+#include <openbabel/forcefield.h>
 #include <openbabel/mol.h>
 #include <openbabel/atom.h>
 
+#include <QtWidgets/QMessageBox>
 #include <QDebug>
 
 OBReader::OBReader(QObject *parent) :
@@ -32,7 +35,7 @@ bool OBReader::readFile(QString fileName)
 
     if (!format || !conv.SetInFormat(format))
     {
-        qDebug() << "format error.";
+        qDebug() << "Unsupported File Format.";
         return false;
     }
 
@@ -41,19 +44,34 @@ bool OBReader::readFile(QString fileName)
 
     if (!ifs)
     {
-        qDebug() << "cannot open the file open.";
+        qDebug() << "Could not open the file.";
         return false;
     }
 
     OBMol obMol;
     if (!conv.Read(&obMol, &ifs))
     {
-        qDebug() << "conv.Read() error.";
+        qDebug() << "Error occured while reading the file.";
         return false;
     }
 
+    if (!obMol.Has3D())
+    {
+        QMessageBox::information(0,
+                                 tr("OBReader"),
+                                 tr("No 3D coordinate values present in this file.\n"
+                                    "OBReader will generate the rough molecular geometry."));
+
+        OBBuilder builder;
+        builder.Build(obMol);
+        obMol.AddHydrogens();
+    }
+
     if (!toMolecule(&obMol))
+    {
+        qDebug() << "Could not convert OBMol to Molecule.";
         return false;
+    }
 
     return true;
 }
@@ -63,26 +81,28 @@ bool OBReader::toMolecule(OpenBabel::OBMol *obMol)
     using namespace OpenBabel;
 
     if (!obMol)
+    {
+        qDebug() << Q_FUNC_INFO << "was called with null parameter.";
         return false;
+    }
 
+    OBElementTable elementTable; // to get atom data.
     QMap<unsigned int, Atom *> atomMap; // need this to construct bond relations
-
-    OBElementTable eleTable;
 
     FOR_ATOMS_OF_MOL(obAtom, obMol)
     {
         unsigned int atomicNum = obAtom->GetAtomicNum();
 
         Atom *atom = new Atom;
-        atom->setPosition(QVector3D(obAtom->x(), obAtom->y(), obAtom->z()));
-        atom->setElement(eleTable.GetSymbol(atomicNum));
 
-        std::vector<double> rgb = eleTable.GetRGB(atomicNum);
+        atom->setPosition(QVector3D(obAtom->x(), obAtom->y(), obAtom->z()));
+        atom->setElement(elementTable.GetSymbol(atomicNum));
+        atom->setRadius(elementTable.GetCovalentRad(atomicNum));
+
+        std::vector<double> rgb = elementTable.GetRGB(atomicNum);
         atom->setColor(QVector3D(rgb.at(0), rgb.at(1), rgb.at(2)));
 
-        atom->setRadius(eleTable.GetCovalentRad(atomicNum) * 0.5);
-
-        atomMap[obAtom->GetIdx()] = atom;
+        atomMap[obAtom->GetIdx()] = atom; // add atom to map. use to set bond's from and to atoms.
         m_molecule->addAtom(atom);
     }
 
