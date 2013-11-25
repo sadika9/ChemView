@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include "cmlreader.h"
+#include "obreader.h"
 
 #include <QFileDialog>
 #include <QFileSystemModel>
@@ -50,22 +51,26 @@ void MainWindow::openFile(const QModelIndex &index)
     QFileSystemModel *model = (QFileSystemModel *)ui->treeView->model();
     m_filePath = model->filePath(index);
 
-    QFile file(m_filePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        qDebug() << file.errorString();
-        return;
-    }
+//    QFile file(m_filePath);
+//    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+//    {
+//        qDebug() << file.errorString();
+//        return;
+//    }
 
-    CmlReader cmlReader(&file);
+//    CmlReader cmlReader(&file);
 
-    if (!cmlReader.parse())
-    {
-        qDebug() << "Invalid CML file.";
-        return;
-    }
+//    if (!cmlReader.parse())
+//    {
+//        qDebug() << "Invalid CML file.";
+//        return;
+//    }
 
-    ui->glWidget->setMolecule(cmlReader.molecule());
+//    ui->glWidget->setMolecule(cmlReader.molecule());
+
+    OBReader obReader;
+    obReader.readFile(m_filePath);
+    ui->glWidget->setMolecule(obReader.molecule());
 }
 
 void MainWindow::browseDir()
