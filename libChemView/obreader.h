@@ -21,7 +21,7 @@ public:
     bool readFile(QString fileName);
 
 private:
-    void toMolecule(OpenBabel::OBMol *obMol);
+    bool toMolecule(OpenBabel::OBMol *obMol);
 
     Molecule *m_molecule;
 };
