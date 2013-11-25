@@ -62,9 +62,11 @@ bool OBReader::readFile(QString fileName)
                                  tr("No 3D coordinate values present in this file.\n"
                                     "OBReader will generate the rough molecular geometry."));
 
-        OBBuilder builder;
-        builder.Build(obMol);
-        obMol.AddHydrogens();
+        if (!buildGeometry(&obMol))
+        {
+            qDebug() << "Error in buildGeometry()";
+            return false;
+        }
     }
 
     if (!toMolecule(&obMol))
