@@ -47,6 +47,7 @@
     </property>
     <addaction name="actionDirectoryDock"/>
     <addaction name="actionSmilesDock"/>
+    <addaction name="actionMolInfoDock"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
@@ -61,6 +62,9 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="directoryDock">
+   <property name="windowTitle">
+    <string>File Browser</string>
+   </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
@@ -73,6 +77,9 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="smiDock">
+   <property name="windowTitle">
+    <string>SMILES</string>
+   </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
@@ -101,6 +108,15 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QDockWidget" name="molInfoDock">
+   <property name="windowTitle">
+    <string>Molecular Information</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3"/>
+  </widget>
   <action name="actionOpenFIle">
    <property name="text">
     <string>&amp;Open FIle</string>
@@ -126,7 +142,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;Directory Dock</string>
+    <string>&amp;File Browser</string>
    </property>
   </action>
   <action name="actionSmilesDock">
@@ -134,12 +150,20 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;SMILES Dock</string>
+    <string>&amp;SMILES</string>
    </property>
   </action>
   <action name="actionSettings">
    <property name="text">
     <string>&amp;Settings</string>
+   </property>
+  </action>
+  <action name="actionMolInfoDock">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Molecular Information</string>
    </property>
   </action>
  </widget>
@@ -227,6 +251,38 @@
     <hint type="sourcelabel">
      <x>135</x>
      <y>440</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMolInfoDock</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>molInfoDock</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>135</x>
+     <y>474</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>molInfoDock</sender>
+   <signal>visibilityChanged(bool)</signal>
+   <receiver>actionMolInfoDock</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>135</x>
+     <y>474</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

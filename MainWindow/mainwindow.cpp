@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // default settings
     m_filePath = QDir::homePath();
     m_fileReader = FileReader::ObReader;
+    ui->molInfoDock->setVisible(false);
 
     initDirectoryBrowseModel();
 
