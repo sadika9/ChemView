@@ -14,7 +14,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_filePath = QDir::currentPath();
+    ui->directoryDock->setVisible(false);
+
+    m_filePath = QDir::homePath();
     m_reader = FileReader::ObReader;
 
     QFileSystemModel *model = new QFileSystemModel(this);
@@ -30,10 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeView->hideColumn(2);
     ui->treeView->hideColumn(3);
 
-    ui->addressEdit->setText(m_filePath);
-
     setWindowTitle(tr("Chemical Structure Viewer"));
-    connect(ui->browseButton, &QPushButton::clicked, this, &MainWindow::browseDir);
     connect(ui->treeView, &QTreeView::activated, this,  &MainWindow::openFromFileIndex);
     connect(ui->actionOpenFIle, &QAction::triggered, this, &MainWindow::browseFile);
     connect(ui->actionOpenDirectory, &QAction::triggered, this, &MainWindow::browseDir);
@@ -83,6 +82,9 @@ void MainWindow::openFromFileIndex(const QModelIndex &index)
 {
     QFileSystemModel *model = (QFileSystemModel *)ui->treeView->model();
 
+    if (model->isDir(index))
+        return;
+
     openFile(model->filePath(index));
 }
 
@@ -95,20 +97,27 @@ void MainWindow::browseFile()
                                                  "SMILES (*.smi);;"
                                                  "MDL MOL (*.mol);;"
                                                  "All files (*)"));
+    if (path.isEmpty())
+        return;
+
+    ui->directoryDock->setVisible(false);
 
     openFile(path);
 }
 
 void MainWindow::browseDir()
 {
-    m_filePath = QFileDialog::getExistingDirectory(this,
+    QString path = QFileDialog::getExistingDirectory(this,
                                                    tr("Open Directory"),
                                                    m_filePath,
                                                    QFileDialog::ShowDirsOnly |
                                                    QFileDialog::DontResolveSymlinks);
+    if (path.isEmpty())
+        return;
+
+    m_filePath = path;
 
     QFileSystemModel *model =  (QFileSystemModel *) ui->treeView->model();
     ui->treeView->setRootIndex(model->index(m_filePath));
-
-    ui->addressEdit->setText(m_filePath);
+    ui->directoryDock->setVisible(true);
 }
