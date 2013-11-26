@@ -22,6 +22,8 @@ public slots:
     void openFromFileIndex(const QModelIndex &index);
     void browseFile();
     void browseDir();
+    void newSmiStringAction();
+    void smiStringChanged(const QString &string);
 
 private:
     Ui::MainWindow *ui;

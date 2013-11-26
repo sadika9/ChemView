@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     ui->directoryDock->setVisible(false);
+    ui->smiDock->setVisible(false);
 
     m_filePath = QDir::homePath();
     m_reader = FileReader::ObReader;
@@ -36,10 +37,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->treeView, &QTreeView::activated, this,  &MainWindow::openFromFileIndex);
     connect(ui->actionOpenFIle, &QAction::triggered, this, &MainWindow::browseFile);
     connect(ui->actionOpenDirectory, &QAction::triggered, this, &MainWindow::browseDir);
+    connect(ui->actionNewSmiString, &QAction::triggered, this, &MainWindow::newSmiStringAction);
+    connect(ui->smiEdit, &QLineEdit::textChanged, this, &MainWindow::smiStringChanged);
 
     // dont need these at this moment.
     ui->mainToolBar->hide();
-//    ui->menuBar->hide();
 }
 
 MainWindow::~MainWindow()
@@ -91,16 +93,17 @@ void MainWindow::openFromFileIndex(const QModelIndex &index)
 void MainWindow::browseFile()
 {
     QString path = QFileDialog::getOpenFileName(this,
-                                              tr("Open File"),
-                                              m_filePath,
-                                              tr("Chemical Markup Language (*.cml);;"
-                                                 "SMILES (*.smi);;"
-                                                 "MDL MOL (*.mol);;"
-                                                 "All files (*)"));
+                                                tr("Open File"),
+                                                m_filePath,
+                                                tr("Chemical Markup Language (*.cml);;"
+                                                   "SMILES (*.smi);;"
+                                                   "MDL MOL (*.mol);;"
+                                                   "All files (*)"));
     if (path.isEmpty())
         return;
 
     ui->directoryDock->setVisible(false);
+    ui->smiDock->setVisible(false);
 
     openFile(path);
 }
@@ -108,10 +111,10 @@ void MainWindow::browseFile()
 void MainWindow::browseDir()
 {
     QString path = QFileDialog::getExistingDirectory(this,
-                                                   tr("Open Directory"),
-                                                   m_filePath,
-                                                   QFileDialog::ShowDirsOnly |
-                                                   QFileDialog::DontResolveSymlinks);
+                                                     tr("Open Directory"),
+                                                     m_filePath,
+                                                     QFileDialog::ShowDirsOnly |
+                                                     QFileDialog::DontResolveSymlinks);
     if (path.isEmpty())
         return;
 
@@ -120,4 +123,22 @@ void MainWindow::browseDir()
     QFileSystemModel *model =  (QFileSystemModel *) ui->treeView->model();
     ui->treeView->setRootIndex(model->index(m_filePath));
     ui->directoryDock->setVisible(true);
+    ui->smiDock->setVisible(false);
+}
+
+void MainWindow::newSmiStringAction()
+{
+    ui->directoryDock->setVisible(false);
+    ui->smiDock->setVisible(true);
+}
+
+void MainWindow::smiStringChanged(const QString &string)
+{
+    qDebug() << "erer";
+    if (m_reader != FileReader::ObReader)
+        return;
+
+    OBReader obReader;
+    obReader.readSmiString(string);
+    ui->glWidget->setMolecule(obReader.molecule());
 }
