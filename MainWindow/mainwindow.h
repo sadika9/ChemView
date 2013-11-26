@@ -26,6 +26,7 @@ public slots:
     void smiStringChanged(const QString &string);
     void openSettingsDialog();
     void setUseOpenBabel(bool useOpenBabel);
+    void about();
 
 signals:
     void useOpenBabel(bool);

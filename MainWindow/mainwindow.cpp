@@ -4,6 +4,7 @@
 #include "cmlreader.h"
 #include "obreader.h"
 #include "settingsdialog.h"
+#include "aboutdialog.h"
 
 #include <QFileDialog>
 #include <QFileSystemModel>
@@ -33,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOpenDirectory, &QAction::triggered, this, &MainWindow::browseDir);
     connect(ui->actionNewSmiString, &QAction::triggered, this, &MainWindow::newSmiStringAction);
     connect(ui->actionSettings, &QAction::triggered, this, &MainWindow::openSettingsDialog);
+    connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::about);
     connect(ui->smiEdit, &QLineEdit::textChanged, this, &MainWindow::smiStringChanged);
     connect(this, &MainWindow::useOpenBabel, this, &MainWindow::setUseOpenBabel);
 
@@ -180,6 +182,12 @@ void MainWindow::setUseOpenBabel(bool useOpenBabel)
     ui->actionNewSmiString->setEnabled(useOpenBabel);
     ui->actionSmilesDock->setEnabled(useOpenBabel);
     ui->smiEdit->setEnabled(useOpenBabel);
+}
+
+void MainWindow::about()
+{
+    AboutDialog dlg(this);
+    dlg.exec();
 }
 
 inline void MainWindow::initDirectoryBrowseModel()
