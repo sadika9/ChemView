@@ -10,16 +10,19 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 QMAKE_CXXFLAGS += -std=c++11
 
-TARGET = MainWindow
+TARGET = ChemViewer
 TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    settingsdialog.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    settingsdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    settingsdialog.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libChemView/release/ -lChemView
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libChemView/debug/ -lChemView
