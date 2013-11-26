@@ -20,20 +20,10 @@ MainWindow::MainWindow(QWidget *parent) :
     m_filePath = QDir::homePath();
     m_reader = FileReader::ObReader;
 
-    QFileSystemModel *model = new QFileSystemModel(this);
-    model->setRootPath(m_filePath);
-    model->setReadOnly(true);
-    //    model->setNameFilters(QStringList("*.cml"));
-    model->setNameFilterDisables(false);
-
-    ui->treeView->setModel(model);
-    ui->treeView->setRootIndex(model->index(m_filePath));
-    // need only to show name column.
-    ui->treeView->hideColumn(1);
-    ui->treeView->hideColumn(2);
-    ui->treeView->hideColumn(3);
+    initDirectoryBrowseModel();
 
     setWindowTitle(tr("Chemical Structure Viewer"));
+
     connect(ui->treeView, &QTreeView::activated, this,  &MainWindow::openFromFileIndex);
     connect(ui->actionOpenFIle, &QAction::triggered, this, &MainWindow::browseFile);
     connect(ui->actionOpenDirectory, &QAction::triggered, this, &MainWindow::browseDir);
@@ -92,13 +82,14 @@ void MainWindow::openFromFileIndex(const QModelIndex &index)
 
 void MainWindow::browseFile()
 {
-    QString path = QFileDialog::getOpenFileName(this,
-                                                tr("Open File"),
-                                                m_filePath,
-                                                tr("Chemical Markup Language (*.cml);;"
-                                                   "SMILES (*.smi);;"
-                                                   "MDL MOL (*.mol);;"
-                                                   "All files (*)"));
+    QString path =
+            QFileDialog::getOpenFileName(this,
+                                         tr("Open File"),
+                                         m_filePath,
+                                         tr("Chemical Markup Language (*.cml);;"
+                                            "SMILES (*.smi);;"
+                                            "MDL MOL (*.mol);;"
+                                            "All files (*)"));
     if (path.isEmpty())
         return;
 
@@ -110,11 +101,12 @@ void MainWindow::browseFile()
 
 void MainWindow::browseDir()
 {
-    QString path = QFileDialog::getExistingDirectory(this,
-                                                     tr("Open Directory"),
-                                                     m_filePath,
-                                                     QFileDialog::ShowDirsOnly |
-                                                     QFileDialog::DontResolveSymlinks);
+    QString path =
+            QFileDialog::getExistingDirectory(this,
+                                              tr("Open Directory"),
+                                              m_filePath,
+                                              QFileDialog::ShowDirsOnly |
+                                              QFileDialog::DontResolveSymlinks);
     if (path.isEmpty())
         return;
 
@@ -141,4 +133,20 @@ void MainWindow::smiStringChanged(const QString &string)
     OBReader obReader;
     obReader.readSmiString(string);
     ui->glWidget->setMolecule(obReader.molecule());
+}
+
+inline void MainWindow::initDirectoryBrowseModel()
+{
+    QFileSystemModel *model = new QFileSystemModel(this);
+    model->setRootPath(m_filePath);
+    model->setReadOnly(true);
+    //    model->setNameFilters(QStringList("*.cml"));
+    model->setNameFilterDisables(false);
+
+    ui->treeView->setModel(model);
+    ui->treeView->setRootIndex(model->index(m_filePath));
+    // need only to show name column.
+    ui->treeView->hideColumn(1);
+    ui->treeView->hideColumn(2);
+    ui->treeView->hideColumn(3);
 }

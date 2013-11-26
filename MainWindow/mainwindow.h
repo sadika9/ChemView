@@ -26,6 +26,8 @@ public slots:
     void smiStringChanged(const QString &string);
 
 private:
+    void initDirectoryBrowseModel();
+
     Ui::MainWindow *ui;
 
     FileReader m_reader;
