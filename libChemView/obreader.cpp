@@ -127,6 +127,10 @@ bool OBReader::toMolecule(OpenBabel::OBMol *obMol)
         return false;
     }
 
+    m_molecule->setFormula(obMol->GetSpacedFormula().c_str());
+    m_molecule->setTitle(obMol->GetTitle());
+    m_molecule->setWeight(obMol->GetMolWt());
+
     OBElementTable elementTable; // to get atom data.
     QMap<unsigned int, Atom *> atomMap; // need this to construct bond relations
 

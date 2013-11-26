@@ -22,9 +22,22 @@ public:
     void addAtom(Atom *atom);
     void addBond(Bond *bond);
 
+    QString formula() const;
+    void setFormula(const QString &formula);
+
+    QString title() const;
+    void setTitle(const QString &title);
+
+    double weight() const;
+    void setWeight(double weight);
+
 private:
     QVector<Atom *> m_atoms;
     QVector<Bond *> m_bonds;
+
+    QString m_formula;
+    QString m_title;
+    double m_weight;
 };
 
 #endif // MOLECULE_H
