@@ -3,6 +3,7 @@
 
 #include "cmlreader.h"
 #include "obreader.h"
+#include "molecule.h"
 #include "settingsdialog.h"
 #include "aboutdialog.h"
 
@@ -23,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // default settings
     m_filePath = QDir::homePath();
     m_fileReader = FileReader::ObReader;
-    ui->molInfoDock->setVisible(false);
+    ui->molInfoDock->setVisible(true);
 
     initDirectoryBrowseModel();
 
@@ -68,13 +69,18 @@ void MainWindow::openFile(const QString &path)
             return;
         }
 
-        ui->glWidget->setMolecule(cmlReader.molecule());
+        Molecule *mol = cmlReader.molecule();
+        ui->glWidget->setMolecule(mol);
+        setMolInfo(mol);
     }
     else // ObReader
     {
         OBReader obReader;
         obReader.readFile(m_filePath);
-        ui->glWidget->setMolecule(obReader.molecule());
+
+        Molecule *mol = obReader.molecule();
+        ui->glWidget->setMolecule(mol);
+        setMolInfo(mol);
     }
 }
 
@@ -158,7 +164,10 @@ void MainWindow::smiStringChanged(const QString &string)
 
     OBReader obReader;
     obReader.readSmiString(string);
-    ui->glWidget->setMolecule(obReader.molecule());
+
+    Molecule *mol = obReader.molecule();
+    ui->glWidget->setMolecule(mol);
+    setMolInfo(mol);
 }
 
 void MainWindow::openSettingsDialog()
@@ -202,4 +211,20 @@ inline void MainWindow::initDirectoryBrowseModel()
     ui->treeView->hideColumn(1);
     ui->treeView->hideColumn(2);
     ui->treeView->hideColumn(3);
+}
+
+void MainWindow::setMolInfo(Molecule *mol)
+{
+    if (!mol)
+    {
+        ui->molTitle->setText("");
+        ui->molFormula->setText("");
+        ui->molWeight->setText("");
+
+        return;
+    }
+
+    ui->molTitle->setText(mol->title());
+    ui->molFormula->setText(mol->formula());
+    ui->molWeight->setText(QString::number(mol->weight()));
 }

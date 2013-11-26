@@ -7,6 +7,8 @@ namespace Ui {
 class MainWindow;
 }
 
+class Molecule;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -33,6 +35,7 @@ signals:
 
 private:
     void initDirectoryBrowseModel();
+    void setMolInfo(Molecule *mol);
 
     Ui::MainWindow *ui;
 
