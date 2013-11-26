@@ -164,12 +164,49 @@ bool OBReader::toMolecule(OpenBabel::OBMol *obMol)
 
 bool OBReader::buildGeometry(OpenBabel::OBMol *obMol)
 {
-    bool state = false;
+    /**
+     *  This function based on idea from Avogadro project.
+     *  http://avogadro.openmolecules.net/wiki/Main_Page
+     */
 
-    OpenBabel::OBBuilder builder;
+    using namespace OpenBabel;
+
+    bool state = false; // function return state.
+
+    OBBuilder builder;
 
     state = builder.Build(*obMol);
     state &= obMol->AddHydrogens();
+
+
+    /** Code From
+     *  http://openbabel.org/api/2.3.0/classOpenBabel_1_1OBForceField.shtml
+     */
+    // Select the forcefield, this returns a pointer that we
+    // will later use to access the forcefield functions.
+    OBForceField *pFF = OBForceField::FindForceField("MMFF94");
+
+    // Make sure we have a valid pointer
+    if (!pFF)
+    {
+        state = false;
+        return state;
+    }
+
+    // We need to setup the forcefield before we can use it. Setup()
+    // returns false if it failes to find the atom types, parameters, ...
+    if (!pFF->Setup(*obMol))
+    {
+        qDebug() << "ERROR: could not setup force field.";
+        state = false;
+        return state;
+    }
+
+    // Perform the actual minimization, maximum 1000 steps
+    pFF->ConjugateGradients(1000);
+
+    // Get new coordinates
+    state &= pFF->GetCoordinates(*obMol);
 
     return state;
 }
