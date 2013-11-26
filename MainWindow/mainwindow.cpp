@@ -3,6 +3,7 @@
 
 #include "cmlreader.h"
 #include "obreader.h"
+#include "settingsdialog.h"
 
 #include <QFileDialog>
 #include <QFileSystemModel>
@@ -17,8 +18,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->directoryDock->setVisible(false);
     ui->smiDock->setVisible(false);
 
+
+    // default settings
     m_filePath = QDir::homePath();
-    m_reader = FileReader::ObReader;
+    m_fileReader = FileReader::ObReader;
 
     initDirectoryBrowseModel();
 
@@ -28,7 +31,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOpenFIle, &QAction::triggered, this, &MainWindow::browseFile);
     connect(ui->actionOpenDirectory, &QAction::triggered, this, &MainWindow::browseDir);
     connect(ui->actionNewSmiString, &QAction::triggered, this, &MainWindow::newSmiStringAction);
+    connect(ui->actionSettings, &QAction::triggered, this, &MainWindow::openSettingsDialog);
     connect(ui->smiEdit, &QLineEdit::textChanged, this, &MainWindow::smiStringChanged);
+    connect(this, &MainWindow::useOpenBabel, this, &MainWindow::setUseOpenBabel);
 
     // dont need these at this moment.
     ui->mainToolBar->hide();
@@ -43,7 +48,7 @@ void MainWindow::openFile(const QString &path)
 {
     m_filePath = path;
 
-    if (m_reader == FileReader::CmlReader)
+    if (m_fileReader == FileReader::CmlReader)
     {
         QFile file(m_filePath);
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -82,14 +87,21 @@ void MainWindow::openFromFileIndex(const QModelIndex &index)
 
 void MainWindow::browseFile()
 {
+    QString filter;
+
+    if (m_fileReader == FileReader::ObReader)
+    {
+        filter = tr("Chemical Markup Language (*.cml);;SMILES (*.smi);;"
+                    "MDL MOL (*.mol);;All files (*)");
+    }
+    else
+    {
+        filter = tr("Chemical Markup Language (*.cml);;All files (*)");
+    }
+
     QString path =
-            QFileDialog::getOpenFileName(this,
-                                         tr("Open File"),
-                                         m_filePath,
-                                         tr("Chemical Markup Language (*.cml);;"
-                                            "SMILES (*.smi);;"
-                                            "MDL MOL (*.mol);;"
-                                            "All files (*)"));
+            QFileDialog::getOpenFileName(this, tr("Open File"), m_filePath, filter);
+
     if (path.isEmpty())
         return;
 
@@ -113,6 +125,18 @@ void MainWindow::browseDir()
     m_filePath = path;
 
     QFileSystemModel *model =  (QFileSystemModel *) ui->treeView->model();
+
+    if (m_fileReader == FileReader::CmlReader)
+    {
+        model->setNameFilters(QStringList("*.cml"));
+        model->setNameFilterDisables(false);
+    }
+    else
+    {
+        model->setNameFilters(QStringList());
+        model->setNameFilterDisables(true);
+    }
+
     ui->treeView->setRootIndex(model->index(m_filePath));
     ui->directoryDock->setVisible(true);
     ui->smiDock->setVisible(false);
@@ -126,8 +150,7 @@ void MainWindow::newSmiStringAction()
 
 void MainWindow::smiStringChanged(const QString &string)
 {
-    qDebug() << "erer";
-    if (m_reader != FileReader::ObReader)
+    if (m_fileReader != FileReader::ObReader)
         return;
 
     OBReader obReader;
@@ -135,13 +158,34 @@ void MainWindow::smiStringChanged(const QString &string)
     ui->glWidget->setMolecule(obReader.molecule());
 }
 
+void MainWindow::openSettingsDialog()
+{
+    bool usingOpenBabel = (m_fileReader == FileReader::ObReader);
+
+    SettingsDialog dialog(usingOpenBabel, this);
+
+    if (dialog.exec() == QDialog::Rejected)
+    {
+        return;
+    }
+
+    emit useOpenBabel(dialog.isOpenBabelReaderChecked());
+}
+
+void MainWindow::setUseOpenBabel(bool useOpenBabel)
+{
+    m_fileReader = useOpenBabel ? FileReader::ObReader : FileReader::CmlReader;
+
+    ui->actionNewSmiString->setEnabled(useOpenBabel);
+    ui->actionSmilesDock->setEnabled(useOpenBabel);
+    ui->smiEdit->setEnabled(useOpenBabel);
+}
+
 inline void MainWindow::initDirectoryBrowseModel()
 {
     QFileSystemModel *model = new QFileSystemModel(this);
     model->setRootPath(m_filePath);
     model->setReadOnly(true);
-    //    model->setNameFilters(QStringList("*.cml"));
-    model->setNameFilterDisables(false);
 
     ui->treeView->setModel(model);
     ui->treeView->setRootIndex(model->index(m_filePath));

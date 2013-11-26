@@ -24,13 +24,18 @@ public slots:
     void browseDir();
     void newSmiStringAction();
     void smiStringChanged(const QString &string);
+    void openSettingsDialog();
+    void setUseOpenBabel(bool useOpenBabel);
+
+signals:
+    void useOpenBabel(bool);
 
 private:
     void initDirectoryBrowseModel();
 
     Ui::MainWindow *ui;
 
-    FileReader m_reader;
+    FileReader m_fileReader;
 
     QString m_filePath;
 };

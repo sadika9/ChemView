@@ -37,6 +37,8 @@
     <addaction name="actionOpenFIle"/>
     <addaction name="actionOpenDirectory"/>
     <addaction name="separator"/>
+    <addaction name="actionSettings"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menu_View">
@@ -133,6 +135,11 @@
    </property>
    <property name="text">
     <string>&amp;SMILES Dock</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>&amp;Settings</string>
    </property>
   </action>
  </widget>
