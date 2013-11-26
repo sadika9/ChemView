@@ -33,13 +33,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->addressEdit->setText(m_filePath);
 
     setWindowTitle(tr("Chemical Structure Viewer"));
-
     connect(ui->browseButton, &QPushButton::clicked, this, &MainWindow::browseDir);
-    connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openFile);
+    connect(ui->treeView, &QTreeView::activated, this,  &MainWindow::openFromFileIndex);
+    connect(ui->actionOpenFIle, &QAction::triggered, this, &MainWindow::browseFile);
+    connect(ui->actionOpenDirectory, &QAction::triggered, this, &MainWindow::browseDir);
 
     // dont need these at this moment.
     ui->mainToolBar->hide();
-    ui->menuBar->hide();
+//    ui->menuBar->hide();
 }
 
 MainWindow::~MainWindow()
@@ -47,10 +48,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::openFile(const QModelIndex &index)
+void MainWindow::openFile(const QString &path)
 {
-    QFileSystemModel *model = (QFileSystemModel *)ui->treeView->model();
-    m_filePath = model->filePath(index);
+    m_filePath = path;
 
     if (m_reader == FileReader::CmlReader)
     {
@@ -77,6 +77,26 @@ void MainWindow::openFile(const QModelIndex &index)
         obReader.readFile(m_filePath);
         ui->glWidget->setMolecule(obReader.molecule());
     }
+}
+
+void MainWindow::openFromFileIndex(const QModelIndex &index)
+{
+    QFileSystemModel *model = (QFileSystemModel *)ui->treeView->model();
+
+    openFile(model->filePath(index));
+}
+
+void MainWindow::browseFile()
+{
+    QString path = QFileDialog::getOpenFileName(this,
+                                              tr("Open File"),
+                                              m_filePath,
+                                              tr("Chemical Markup Language (*.cml);;"
+                                                 "SMILES (*.smi);;"
+                                                 "MDL MOL (*.mol);;"
+                                                 "All files (*)"));
+
+    openFile(path);
 }
 
 void MainWindow::browseDir()

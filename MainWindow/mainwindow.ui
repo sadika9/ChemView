@@ -29,6 +29,14 @@
      <height>18</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionOpenFIle"/>
+    <addaction name="actionOpenDirectory"/>
+   </widget>
+   <addaction name="menu_File"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -69,6 +77,16 @@
     </layout>
    </widget>
   </widget>
+  <action name="actionOpenFIle">
+   <property name="text">
+    <string>&amp;Open FIle</string>
+   </property>
+  </action>
+  <action name="actionOpenDirectory">
+   <property name="text">
+    <string>Open &amp;Directory</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
