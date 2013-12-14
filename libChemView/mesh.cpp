@@ -172,12 +172,11 @@ bool Mesh::read(QString path)
         PackedVertex packed = {vertices[i], normals[i]};
 
         // Try to find a similar vertex in out_XXXX
-        unsigned short index;
-        bool found = getSimilarVertexIndex(packed, vertexToOutIndex, index);
+        QMap<PackedVertex, unsigned short>::iterator it = vertexToOutIndex.find(packed);
 
-        if (found)  // A similar vertex is already in the VBO, use it instead !
+        if (it != vertexToOutIndex.end())  // A similar vertex is already in the VBO, use it instead !
         {
-            m_indices.push_back( index );
+            m_indices.push_back(it.value());
         }
         else    // If not, it needs to be added in the output data.
         {
@@ -189,20 +188,5 @@ bool Mesh::read(QString path)
         }
     }
 
-    return true;
-}
-
-
-/**
- * Helper function to index vbos
- */
-inline bool Mesh::getSimilarVertexIndex(PackedVertex &packed, QMap<PackedVertex, unsigned short> &vertexToOutIndex, unsigned short &result)
-{
-    QMap<PackedVertex, unsigned short>::iterator it = vertexToOutIndex.find(packed);
-
-    if (it == vertexToOutIndex.end())
-        return false;
-
-    result = it.value();
     return true;
 }

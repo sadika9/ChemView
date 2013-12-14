@@ -20,7 +20,6 @@ public:
 
 private:
     bool read(QString path);
-    bool getSimilarVertexIndex(PackedVertex &packed, QMap<PackedVertex, unsigned short> &vertexToOutIndex, unsigned short &result);
 
     QVector<unsigned short> m_indices;
     QVector<QVector3D> m_indexed_vertices;
