@@ -4,6 +4,17 @@
 #include <QFile>
 #include <QDebug>
 
+struct PackedVertex
+{
+    QVector3D position;
+    QVector3D normal;
+
+    bool operator<(const PackedVertex that) const
+    {
+        return memcmp((void*)this, (void*)&that, sizeof(PackedVertex)) > 0;
+    }
+};
+
 Mesh::Mesh() :
     isInitSuccessful(false)
 {
@@ -59,10 +70,10 @@ void Mesh::render(QOpenGLShaderProgram *program)
     glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, 0, (const void *)0);
 
     // Normals
-     int normalLocation = program->attributeLocation(m_vertexNormal);
-     program->enableAttributeArray(normalLocation);
-     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[1]);
-     glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, 0, (const void *)0);
+    int normalLocation = program->attributeLocation(m_vertexNormal);
+    program->enableAttributeArray(normalLocation);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[1]);
+    glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, 0, (const void *)0);
 
     // Index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[2]);
@@ -150,17 +161,9 @@ bool Mesh::read(QString path)
         normals.push_back(normal);
     }
 
-    // index VBOs
-    indexVbo(vertices, normals);
 
-    return true;
-}
+    /** indexing VBOs **/
 
-/**
- * Index VBOs
- */
-void Mesh::indexVbo(QVector<QVector3D> &vertices, QVector<QVector3D> &normals)
-{
     QMap<PackedVertex,unsigned short> vertexToOutIndex;
 
     // For each input vertex
@@ -180,27 +183,26 @@ void Mesh::indexVbo(QVector<QVector3D> &vertices, QVector<QVector3D> &normals)
         {
             m_indexed_vertices.push_back(vertices[i]);
             m_indexed_normals.push_back(normals[i]);
-            unsigned short newindex = (unsigned short)m_indexed_vertices.size() - 1;
+            unsigned short newindex = (unsigned short) m_indexed_vertices.size() - 1;
             m_indices.push_back(newindex);
             vertexToOutIndex[packed] = newindex;
         }
     }
+
+    return true;
 }
 
+
 /**
- * Helper function for indexVBO
+ * Helper function to index vbos
  */
-bool Mesh::getSimilarVertexIndex(PackedVertex &packed, QMap<PackedVertex, unsigned short> &vertexToOutIndex, unsigned short &result)
+inline bool Mesh::getSimilarVertexIndex(PackedVertex &packed, QMap<PackedVertex, unsigned short> &vertexToOutIndex, unsigned short &result)
 {
     QMap<PackedVertex, unsigned short>::iterator it = vertexToOutIndex.find(packed);
 
     if (it == vertexToOutIndex.end())
-    {
         return false;
-    }
-    else
-    {
-        result = it.value();
-        return true;
-    }
+
+    result = it.value();
+    return true;
 }
