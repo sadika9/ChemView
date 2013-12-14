@@ -225,14 +225,12 @@ void OpenGLWidget::initializeGL()
     // Use QBasicTimer because its faster than QTimer
     m_timer.start(12, this);
 
-    // Initialize meshes
-
+    // Initializing meshes
     // Try these combinations too. ;-)
     // sphere: suzanne.obj & cylinder: cube.obj
     // sphere: cube.obj & cylinder: cube.obj
-
-    m_atomMesh.init("://meshes/sphere.obj", "modelSpaceVertexPos", "modelSpaceVertexNormal");
-    m_bondMesh.init("://meshes/cylinder.obj", "modelSpaceVertexPos", "modelSpaceVertexNormal");
+    m_atomMesh.init("://meshes/sphere.obj", "modelSpaceVertexPos", "modelSpaceVertexNormal", &m_program);
+    m_bondMesh.init("://meshes/cylinder.obj", "modelSpaceVertexPos", "modelSpaceVertexNormal", &m_program);
 }
 
 void OpenGLWidget::resizeGL(int w, int h)
@@ -336,7 +334,7 @@ inline void OpenGLWidget::drawAtoms()
         m_program.setUniformValue(m_modelLocation, model);
         m_program.setUniformValue(m_colorLocation, atom->color());
 
-        m_atomMesh.render(&m_program);
+        m_atomMesh.render();
     }
 }
 
@@ -428,7 +426,7 @@ inline void OpenGLWidget::drawBonds()
             m_program.setUniformValue(m_colorLocation, QVector3D(0.564706f, 0.564706f, 0.564706f));
 
             // Draw cube geometry
-            m_bondMesh.render(&m_program);
+            m_bondMesh.render();
         }
     }
 }

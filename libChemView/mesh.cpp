@@ -20,10 +20,11 @@ Mesh::Mesh() :
 {
 }
 
-void Mesh::init(QString meshPath, QString vertexPos, QString vertexNormal)
+void Mesh::init(QString meshPath, QString vertexPos, QString vertexNormal, QOpenGLShaderProgram *program)
 {
     m_vertexPos = vertexPos;
     m_vertexNormal = vertexNormal;
+    m_program = program;
 
     initializeOpenGLFunctions();
 
@@ -55,7 +56,7 @@ void Mesh::init(QString meshPath, QString vertexPos, QString vertexNormal)
     isInitSuccessful = true;
 }
 
-void Mesh::render(QOpenGLShaderProgram *program)
+void Mesh::render()
 {
     if (!isInitSuccessful)
     {
@@ -64,14 +65,14 @@ void Mesh::render(QOpenGLShaderProgram *program)
     }
 
     // Vertices
-    int vertexLocation = program->attributeLocation(m_vertexPos);
-    program->enableAttributeArray(vertexLocation);
+    int vertexLocation = m_program->attributeLocation(m_vertexPos);
+    m_program->enableAttributeArray(vertexLocation);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, 0, (const void *)0);
 
     // Normals
-    int normalLocation = program->attributeLocation(m_vertexNormal);
-    program->enableAttributeArray(normalLocation);
+    int normalLocation = m_program->attributeLocation(m_vertexNormal);
+    m_program->enableAttributeArray(normalLocation);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[1]);
     glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, 0, (const void *)0);
 
@@ -86,7 +87,7 @@ void Mesh::render(QOpenGLShaderProgram *program)
  * This method is based on loadOBJ() from http://www.opengl-tutorial.org/ and
  * model reading on qt-labs-modelviewer from https://qt.gitorious.org/qt-labs/modelviewer
  */
-bool Mesh::read(QString path)
+bool Mesh::read(QString filePath)
 {
     // Variables to store vertices & normals
     QVector<QVector3D> vertices;
@@ -97,7 +98,7 @@ bool Mesh::read(QString path)
     QVector<QVector3D> tempVertices;
     QVector<QVector3D> tempNormals;
 
-    QFile file(path);
+    QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qDebug() << file.errorString();

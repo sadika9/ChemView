@@ -15,11 +15,11 @@ class Mesh : protected QOpenGLFunctions
 public:
     Mesh();
 
-    void init(QString meshPath, QString vertexPos, QString vertexNormal);
-    void render(QOpenGLShaderProgram *program);
+    void init(QString meshPath, QString vertexPos, QString vertexNormal, QOpenGLShaderProgram *program);
+    void render();
 
 private:
-    bool read(QString path);
+    bool read(QString filePath);
 
     QVector<unsigned short> m_indices;
     QVector<QVector3D> m_indexed_vertices;
@@ -29,6 +29,7 @@ private:
 
     QString m_vertexPos;
     QString m_vertexNormal;
+    QOpenGLShaderProgram *m_program;
 
     bool isInitSuccessful;
 };
