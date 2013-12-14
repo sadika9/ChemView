@@ -145,7 +145,6 @@ bool Mesh::read(QString path)
                 QStringList indices = vertex.split("//");
                 vertexIndices.append(indices.value(0).toUInt());
                 normalIndices.append(indices.value(1).toUInt());
-                qDebug() << indices;
             }
         }
     }
