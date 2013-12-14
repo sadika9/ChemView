@@ -12,6 +12,7 @@
 #include <openbabel/atom.h>
 
 #include <QtWidgets/QMessageBox>
+#include <QtWidgets/QCheckBox>
 #include <QDebug>
 
 OBReader::OBReader(QObject *parent) :
@@ -57,10 +58,19 @@ bool OBReader::readFile(QString fileName)
 
     if (!obMol.Has3D())
     {
-        QMessageBox::information(0,
-                                 tr("OBReader"),
-                                 tr("No 3D coordinate values present in this file.\n"
-                                    "OBReader will generate the rough molecular geometry."));
+        static bool showMsgBox = true;
+        if (showMsgBox)
+        {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle(tr("OBReader"));
+            msgBox.setText(tr("No 3D coordinate values present in this file."));
+            msgBox.setInformativeText(tr("OBReader will generate the rough molecular geometry."));
+            msgBox.setCheckBox(new QCheckBox(tr("Don’t show this message again.")));
+            msgBox.setIcon(QMessageBox::Information);
+            msgBox.exec();
+
+            showMsgBox = !msgBox.checkBox()->isChecked();
+        }
 
         if (!buildGeometry(&obMol))
         {
