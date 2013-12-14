@@ -226,17 +226,13 @@ void OpenGLWidget::initializeGL()
     m_timer.start(12, this);
 
     // Initialize meshes
-#ifdef USE_ASSIMP
-    QString sphere("://meshes/sphere.obj");
-    QString cylinder("://meshes/cylinder.obj");
-#endif
 
-#ifndef USE_ASSIMP
-    QString sphere("meshes/sphere.obj");
-    QString cylinder("meshes/cylinder.obj");
-#endif
-    m_atomMesh.init(sphere, "modelSpaceVertexPos", "modelSpaceVertexNormal");
-    m_bondMesh.init(cylinder, "modelSpaceVertexPos", "modelSpaceVertexNormal");
+    // Try these combinations too. ;-)
+    // sphere: suzanne.obj & cylinder: cube.obj
+    // sphere: cube.obj & cylinder: cube.obj
+
+    m_atomMesh.init("://meshes/sphere.obj", "modelSpaceVertexPos", "modelSpaceVertexNormal");
+    m_bondMesh.init("://meshes/cylinder.obj", "modelSpaceVertexPos", "modelSpaceVertexNormal");
 }
 
 void OpenGLWidget::resizeGL(int w, int h)

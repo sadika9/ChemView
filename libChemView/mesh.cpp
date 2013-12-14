@@ -1,11 +1,5 @@
 #include "mesh.h"
 
-#ifdef USE_ASSIMP
-#include <assimp/Importer.hpp>      // C++ importer interface
-#include <assimp/scene.h>           // Output data structure
-#include <assimp/postprocess.h>     // Post processing flags
-#endif
-
 #include <QOpenGLShaderProgram>
 #include <QFile>
 #include <QDebug>
