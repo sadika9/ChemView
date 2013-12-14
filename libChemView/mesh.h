@@ -19,6 +19,7 @@ public:
     void render(QOpenGLShaderProgram *program);
 
 private:
+    bool read(QString path);
     bool loadObj(QString path);
 
     void indexVbo(QVector<QVector3D> &vertices, QVector<QVector3D> &normals);

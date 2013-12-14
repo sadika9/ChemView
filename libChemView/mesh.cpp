@@ -34,7 +34,7 @@ void Mesh::init(QString meshPath, QString vertexPos, QString vertexNormal)
 
 #ifndef USE_ASSIMP
     // Load data from .obj file by using custom method from (http://www.opengl-tutorial.org/)
-    bool loaded = loadObj(meshPath.toLatin1());
+    bool loaded = read(meshPath);
 #endif
 
     if (!loaded)
@@ -85,6 +85,92 @@ void Mesh::render(QOpenGLShaderProgram *program)
 
     // Draw the triangles !
     glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_SHORT, (const void*)0);
+}
+
+/**
+ * This method is based on loadOBJ() from http://www.opengl-tutorial.org/ and
+ * model reading on qt-labs-modelviewer from https://qt.gitorious.org/qt-labs/modelviewer
+ */
+bool Mesh::read(QString path)
+{
+    // Variables to store vertices & normals
+    QVector<QVector3D> vertices;
+    QVector<QVector3D> normals;
+
+    // Temporary variables to store values that read from file, (raw data)
+    QVector<unsigned int> vertexIndices, normalIndices;
+    QVector<QVector3D> tempVertices;
+    QVector<QVector3D> tempNormals;
+
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug() << file.errorString();
+        return false;
+    }
+
+    QTextStream fs(&file);
+
+
+    while (!fs.atEnd())
+    {
+        QString line = fs.readLine();
+
+        if (line.isEmpty() || line[0] == '#')
+            continue;
+
+        QTextStream ls(&line);
+        QString tag;
+        ls >> tag;
+        if (tag.compare("v") == 0)
+        {
+            float x, y, z;
+            ls >> x >> y >> z;
+            QVector3D vertex(x, y, z);
+            tempVertices.append(vertex);
+        }
+        else if (tag.compare("vn") == 0)
+        {
+            float x, y, z;
+            ls >> x >> y >> z;
+            QVector3D normal(x, y, z);
+            tempNormals.append(normal);
+        }
+        else if (tag.compare("f") == 0)
+        {
+            QString vertex;
+            while (!ls.atEnd())
+            {
+                ls >> vertex;
+                QStringList indices = vertex.split("//");
+                vertexIndices.append(indices.value(0).toUInt());
+                normalIndices.append(indices.value(1).toUInt());
+                qDebug() << indices;
+            }
+        }
+    }
+
+    // For each vertex of each triangle
+    int vertexIndicesSize = vertexIndices.size();
+    for(int i = 0; i < vertexIndicesSize; ++i)
+    {
+        // Get the indices of its attributes
+        unsigned int vertexIndex = vertexIndices[i];
+        unsigned int normalIndex = normalIndices[i];
+
+        // Get the attributes thanks to the index
+        QVector3D vertex = tempVertices[ vertexIndex-1 ];
+        QVector3D normal = tempNormals[ normalIndex-1 ];
+
+        // Put the attributes in buffers
+        vertices.push_back(vertex);
+        normals.push_back(normal);
+    }
+
+    // index VBOs
+    indexVbo(vertices, normals);
+
+    return true;
 }
 
 /**
