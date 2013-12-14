@@ -1,8 +1,6 @@
 QT       -= gui
 QT       += opengl
 
-DEFINES -= "USE_ASSIMP"
-
 QMAKE_CXXFLAGS += -std=c++11
 
 TARGET = ChemView
@@ -28,7 +26,6 @@ SOURCES += \
     obreader.cpp
 
 unix: CONFIG += link_pkgconfig
-unix: PKGCONFIG += assimp
 unix: PKGCONFIG += openbabel-2.0
 
 RESOURCES += \
