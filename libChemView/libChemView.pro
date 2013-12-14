@@ -1,7 +1,7 @@
 QT       -= gui
 QT       += opengl
 
-DEFINES += "USE_ASSIMP"
+DEFINES -= "USE_ASSIMP"
 
 QMAKE_CXXFLAGS += -std=c++11
 

@@ -235,8 +235,8 @@ void OpenGLWidget::initializeGL()
     QString sphere("meshes/sphere.obj");
     QString cylinder("meshes/cylinder.obj");
 #endif
-    m_atomMesh.init(sphere, "modelSpaceVertexPos", "modelSpaceVertexNormal", "a_texcoord");
-    m_bondMesh.init(cylinder, "modelSpaceVertexPos", "modelSpaceVertexNormal", "a_texcoord");
+    m_atomMesh.init(sphere, "modelSpaceVertexPos", "modelSpaceVertexNormal");
+    m_bondMesh.init(cylinder, "modelSpaceVertexPos", "modelSpaceVertexNormal");
 }
 
 void OpenGLWidget::resizeGL(int w, int h)

@@ -15,10 +15,9 @@ Mesh::Mesh() :
 {
 }
 
-void Mesh::init(QString meshPath, QString vertexPos, QString vertexNormal, QString texCoord)
+void Mesh::init(QString meshPath, QString vertexPos, QString vertexNormal)
 {
     m_vertexPos = vertexPos;
-    m_texCoord = texCoord;
     m_vertexNormal = vertexNormal;
 
     initializeOpenGLFunctions();
@@ -49,10 +48,6 @@ void Mesh::init(QString meshPath, QString vertexPos, QString vertexNormal, QStri
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glBufferData(GL_ARRAY_BUFFER, m_indexed_vertices.size() * sizeof(QVector3D), &m_indexed_vertices[0], GL_STATIC_DRAW);
 
-    // Transfer uv data to VBO
-    // glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[index]);
-    // glBufferData(GL_ARRAY_BUFFER, m_indexed_uvs.size(), &m_indexed_uvs[0], GL_STATIC_DRAW);
-
     // Transfer index data to VBO
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[1]);
     glBufferData(GL_ARRAY_BUFFER, m_indexed_normals.size() * sizeof(QVector3D), &m_indexed_normals[0], GL_STATIC_DRAW);
@@ -72,24 +67,18 @@ void Mesh::render(QOpenGLShaderProgram *program)
         qDebug() << Q_FUNC_INFO << "Not initialized.";
         return;
     }
+
     // Vertices
     int vertexLocation = program->attributeLocation(m_vertexPos);
     program->enableAttributeArray(vertexLocation);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
     glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, 0, (const void *)0);
 
-    // UVs
-    // int uvLocation = program->attributeLocation(m_uvPos);
-    // program->enableAttributeArray(uvLocation);
-    // glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[uvbuffer]);
-    // glVertexAttribPointer(uvLocation, 2, GL_FLOAT, GL_FALSE, 0, (const void *)0);
-
     // Normals
      int normalLocation = program->attributeLocation(m_vertexNormal);
      program->enableAttributeArray(normalLocation);
      glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[1]);
      glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, 0, (const void *)0);
-
 
     // Index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[2]);
@@ -105,15 +94,13 @@ void Mesh::render(QOpenGLShaderProgram *program)
  */
 bool Mesh::loadObj(QString path)
 {
-    // Variables to store vertices, uvs & normals
+    // Variables to store vertices & normals
     QVector<QVector3D> vertices;
-    QVector<QVector2D> uvs;
     QVector<QVector3D> normals;
 
     // Temporary variables to store values that read from file, (raw data)
-    QVector<unsigned int> vertexIndices, uvIndices, normalIndices;
+    QVector<unsigned int> vertexIndices, normalIndices;
     QVector<QVector3D> tempVertices;
-    QVector<QVector2D> tempUvs;
     QVector<QVector3D> tempNormals;
 
 
@@ -143,15 +130,6 @@ bool Mesh::loadObj(QString path)
             QVector3D vertex(x, y, z);
             tempVertices.push_back(vertex);
         }
-        else if (strcmp(lineHeader, "vt") == 0)
-        {
-            float x, y;
-            fscanf(file, "%f %f\n", &x, &y);
-            // Invert 'V' coordinate since we will only use DDS texture,
-            // which are inverted. Remove if you want to use TGA or BMP loaders.
-            QVector2D uv(x, -y);
-            tempUvs.push_back(uv);
-        }
         else if (strcmp( lineHeader, "vn") == 0)
         {
             float x, y, z;
@@ -175,9 +153,6 @@ bool Mesh::loadObj(QString path)
             vertexIndices.push_back(vertexIndex[0]);
             vertexIndices.push_back(vertexIndex[1]);
             vertexIndices.push_back(vertexIndex[2]);
-            uvIndices    .push_back(uvIndex[0]);
-            uvIndices    .push_back(uvIndex[1]);
-            uvIndices    .push_back(uvIndex[2]);
             normalIndices.push_back(normalIndex[0]);
             normalIndices.push_back(normalIndex[1]);
             normalIndices.push_back(normalIndex[2]);
@@ -198,22 +173,19 @@ bool Mesh::loadObj(QString path)
     {
         // Get the indices of its attributes
         unsigned int vertexIndex = vertexIndices[i];
-        unsigned int uvIndex = uvIndices[i];
         unsigned int normalIndex = normalIndices[i];
 
         // Get the attributes thanks to the index
         QVector3D vertex = tempVertices[ vertexIndex-1 ];
-        QVector2D uv = tempUvs[ uvIndex-1 ];
         QVector3D normal = tempNormals[ normalIndex-1 ];
 
         // Put the attributes in buffers
         vertices.push_back(vertex);
-        uvs.push_back(uv);
         normals.push_back(normal);
     }
 
     // index VBOs
-    indexVbo(vertices, uvs, normals);
+    indexVbo(vertices, normals);
 
     return true;
 }
@@ -221,15 +193,14 @@ bool Mesh::loadObj(QString path)
 /**
  * Index VBOs
  */
-void Mesh::indexVbo(QVector<QVector3D> &vertices, QVector<QVector2D> &uvs, QVector<QVector3D> &normals)
+void Mesh::indexVbo(QVector<QVector3D> &vertices, QVector<QVector3D> &normals)
 {
-
     QMap<PackedVertex,unsigned short> vertexToOutIndex;
 
     // For each input vertex
     for (int i = 0; i < vertices.size(); ++i)
     {
-        PackedVertex packed = {vertices[i], uvs[i], normals[i]};
+        PackedVertex packed = {vertices[i], normals[i]};
 
         // Try to find a similar vertex in out_XXXX
         unsigned short index;
@@ -242,7 +213,6 @@ void Mesh::indexVbo(QVector<QVector3D> &vertices, QVector<QVector2D> &uvs, QVect
         else    // If not, it needs to be added in the output data.
         {
             m_indexed_vertices.push_back(vertices[i]);
-            m_indexed_uvs.push_back(uvs[i]);
             m_indexed_normals.push_back(normals[i]);
             unsigned short newindex = (unsigned short)m_indexed_vertices.size() - 1;
             m_indices.push_back(newindex);
@@ -314,14 +284,6 @@ bool Mesh::loadAssImp(QString path)
     {
         aiVector3D pos = mesh->mVertices[i];
         m_indexed_vertices.push_back(QVector3D(pos.x, pos.y, pos.z));
-    }
-
-    // Fill vertices texture coordinates
-    m_indexed_uvs.reserve(mesh->mNumVertices);
-    for(unsigned int i = 0; i < mesh->mNumVertices; ++i)
-    {
-        aiVector3D UVW = mesh->mTextureCoords[0][i]; // Assume only 1 set of UV coords; AssImp supports 8 UV sets.
-        m_indexed_uvs.push_back(QVector2D(UVW.x, UVW.y));
     }
 
     // Fill vertices normals

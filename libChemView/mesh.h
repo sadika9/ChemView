@@ -15,15 +15,13 @@ class Mesh : protected QOpenGLFunctions
 public:
     Mesh();
 
-    void init(QString meshPath, QString vertexPos, QString vertexNormal, QString texCoord);
+    void init(QString meshPath, QString vertexPos, QString vertexNormal);
     void render(QOpenGLShaderProgram *program);
 
 private:
     bool loadObj(QString path);
 
-    void indexVbo(QVector<QVector3D> &vertices,
-                  QVector<QVector2D> &uvs,
-                  QVector<QVector3D> &normals);
+    void indexVbo(QVector<QVector3D> &vertices, QVector<QVector3D> &normals);
 
     bool getSimilarVertexIndex(PackedVertex &packed,
                                QMap<PackedVertex, unsigned short> &vertexToOutIndex,
@@ -36,13 +34,11 @@ private:
 
     QVector<unsigned short> m_indices;
     QVector<QVector3D> m_indexed_vertices;
-    QVector<QVector2D> m_indexed_uvs;
     QVector<QVector3D> m_indexed_normals;
 
     GLuint m_vboIds[3];
 
     QString m_vertexPos;
-    QString m_texCoord;
     QString m_vertexNormal;
 
     bool isInitSuccessful;
@@ -51,7 +47,6 @@ private:
 struct PackedVertex
 {
     QVector3D position;
-    QVector2D uv;
     QVector3D normal;
 
     bool operator<(const PackedVertex that) const
