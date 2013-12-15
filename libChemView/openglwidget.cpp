@@ -156,8 +156,8 @@ void OpenGLWidget::mouseDoubleClickEvent(QMouseEvent *)
 {
     m_fov = 45.0;
     m_zNearPlane = 0.1;
-    m_zFarPlane = 100.0,
-            m_angularSpeed = 0;
+    m_zFarPlane = 100.0;
+    m_angularSpeed = 0;
     m_translation = QVector3D(0, 0, -15);
     m_rotation = QQuaternion();
 
