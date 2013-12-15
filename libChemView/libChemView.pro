@@ -14,7 +14,8 @@ HEADERS += \
     cmlreader.h \
     openglwidget.h \
     mesh.h \
-    obreader.h
+    obreader.h \
+    camera.h
 
 SOURCES += \
     molecule.cpp \
@@ -23,7 +24,8 @@ SOURCES += \
     cmlreader.cpp \
     openglwidget.cpp \
     mesh.cpp \
-    obreader.cpp
+    obreader.cpp \
+    camera.cpp
 
 unix: CONFIG += link_pkgconfig
 unix: PKGCONFIG += openbabel-2.0
