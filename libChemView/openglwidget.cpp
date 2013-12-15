@@ -10,13 +10,10 @@
 
 OpenGLWidget::OpenGLWidget(QWidget *parent) :
     QGLWidget(parent),
-    m_fov(45.0),
-    m_zNearPlane(0.1),
-    m_zFarPlane(100.0),
     m_molecule(nullptr),
-    m_angularSpeed(0),
-    m_translation(QVector3D(0, 0, -15))
+    m_angularSpeed(0)
 {
+    resetCamera();
 }
 
 OpenGLWidget::~OpenGLWidget()
@@ -32,37 +29,6 @@ void OpenGLWidget::setMolecule(Molecule *molecule)
 {
     m_molecule = molecule;
 
-    updateGL();
-}
-
-
-void OpenGLWidget::setFov(float fov)
-{
-    if (m_fov == fov)
-        return;
-
-    m_fov = fov;
-    emit fovChanged(m_fov);
-    updateGL();
-}
-
-void OpenGLWidget::setZNearPlane(float zNearPlane)
-{
-    if (m_zNearPlane == zNearPlane)
-        return;
-
-    m_zNearPlane = zNearPlane;
-    emit zNearPlaneChanged(m_zNearPlane);
-    updateGL();
-}
-
-void OpenGLWidget::setZFarPlane(float zFarPlane)
-{
-    if (m_zFarPlane == zFarPlane)
-        return;
-
-    m_zFarPlane = zFarPlane;
-    emit zFarPlaneChanged(m_zFarPlane);
     updateGL();
 }
 
@@ -145,8 +111,8 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent *e)
         QVector2D diff = (QVector2D(e->localPos()) - m_lastMousePosition) / 100;
         m_lastMousePosition = QVector2D(e->localPos());
 
-        QVector3D n = QVector3D(diff.x(), -diff.y(), 0);
-        m_translation += n;
+        QVector3D n = QVector3D(-diff.x(), diff.y(), 0);
+        m_camera.setViewCenter(m_camera.viewCenter() + n);
 
         updateGL();
     }
@@ -154,14 +120,11 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent *e)
 
 void OpenGLWidget::mouseDoubleClickEvent(QMouseEvent *)
 {
-    m_fov = 45.0;
-    m_zNearPlane = 0.1;
-    m_zFarPlane = 100.0;
     m_angularSpeed = 0;
-    m_translation = QVector3D(0, 0, -15);
     m_rotation = QQuaternion();
 
-    resizeGL(width(), height());
+    resetCamera();
+
     updateGL();
 }
 
@@ -172,20 +135,16 @@ void OpenGLWidget::wheelEvent(QWheelEvent *e)
     if (!numDegrees.isNull())
     {
         QPoint numSteps = numDegrees / 15;
-        float fov = m_fov - numSteps.y() * 5;
 
-        if (fov <= 0)
-        {
-            fov = 1;
-        }
-        else if (fov > 150)
-        {
-            fov = 150;
-        }
+        QVector3D val = m_camera.position() - QVector3D(0, 0, numSteps.y());
 
-        setFov(fov);
+        if (val.z() > m_camera.farPlane() || val.z() < m_camera.nearPlane())
+            return;
+
+        m_camera.setPosition(val);
 
         resizeGL(width(), height());
+        updateGL();
     }
 
     e->accept();
@@ -240,30 +199,7 @@ void OpenGLWidget::resizeGL(int w, int h)
 
     // Calculate aspect ratio
     qreal aspect = qreal(w) / qreal(h ? h : 1);
-
-    // Reset projection
-    m_projection.setToIdentity();
-
-    // Set perspective projection
-    m_projection.perspective(m_fov, aspect, m_zNearPlane, m_zFarPlane);
-
-    /*
-    // Perspective frustum projection
-    // using m_fov to zoom in/out purpose
-    // other constants are used to get proper viewing.
-    float wFrustum = w * m_fov / (2.0 * 100000);
-    float hFrustum = h * m_fov / (2.0 * 100000);
-    m_projection.frustum(-wFrustum, wFrustum, -hFrustum, hFrustum, m_nearPlane, m_farPlane);
-    */
-
-    /*
-    // Orthographic projection
-    // here we use m_fov to zoom in/out purpose
-    // other constants are used to get proper viewing.
-    float wOrtho = w * m_fov / (2.0 * 1000);
-    float hOrtho = h * m_fov / (2.0 * 1000);
-    m_projection.ortho(-wOrtho, wOrtho, -hOrtho, hOrtho, m_nearPlane, m_farPlane);
-    */
+    m_camera.setAspectRatio(aspect);
 }
 
 void OpenGLWidget::paintGL()
@@ -274,12 +210,8 @@ void OpenGLWidget::paintGL()
     if (!m_molecule)
         return;
 
-
-    QMatrix4x4 view;
-    view.translate(m_translation);
-
-    m_program.setUniformValue(m_viewLocation, view);
-    m_program.setUniformValue(m_projectionLocation, m_projection);
+    m_program.setUniformValue(m_viewLocation, m_camera.viewMatrix());
+    m_program.setUniformValue(m_projectionLocation, m_camera.projectionMatrix());
     m_program.setUniformValue(m_lightLocation, QVector3D(10, 10, 10));
 
     drawAtoms();
@@ -317,6 +249,18 @@ void OpenGLWidget::initShaders()
     m_viewLocation = m_program.uniformLocation("view");
     m_projectionLocation = m_program.uniformLocation("projection");
     m_lightLocation = m_program.uniformLocation("worldSpaceLightPosition");
+}
+
+inline void OpenGLWidget::resetCamera()
+{
+    m_camera.setFieldOfView(60.0f);
+    m_camera.setNearPlane(0.1f);
+    m_camera.setFarPlane(100.0f);
+    m_camera.setPosition(QVector3D(0, 0, 15.f));
+    m_camera.setViewCenter(QVector3D(0, 0, 0));
+
+    qreal aspect = qreal(size().width()) / qreal(size().height() ? size().height() : 1);
+    m_camera.setAspectRatio(aspect);
 }
 
 inline void OpenGLWidget::drawAtoms()

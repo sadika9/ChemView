@@ -1,6 +1,7 @@
 #ifndef OPENGLWIDGET_H
 #define OPENGLWIDGET_H
 
+#include "camera.h"
 #include "mesh.h"
 
 #include <QGLWidget>
@@ -17,19 +18,8 @@ public:
     explicit OpenGLWidget(QWidget *parent = 0);
     ~OpenGLWidget();
 
-
     Molecule *molecule() const;
     void setMolecule(Molecule *molecule);
-
-public slots:
-    void setFov(float fov);
-    void setZNearPlane(float zNearPlane);
-    void setZFarPlane(float zFarPlane);
-
-signals:
-    void fovChanged(float fov);
-    void zNearPlaneChanged(float zNearPlane);
-    void zFarPlaneChanged(float zFarPlane);
 
 protected:
     void mousePressEvent(QMouseEvent *e);
@@ -47,12 +37,9 @@ protected:
     void initShaders();
 
 private:
+    void resetCamera();
     void drawAtoms();
     void drawBonds();
-
-    float m_fov;
-    float m_zNearPlane;
-    float m_zFarPlane;
 
     Molecule *m_molecule;
 
@@ -67,7 +54,7 @@ private:
     GLuint m_colorLocation;
     GLuint m_lightLocation;
 
-    QMatrix4x4 m_projection;
+    Camera m_camera;
 
     QBasicTimer m_timer;
 
@@ -75,7 +62,6 @@ private:
     QVector3D m_rotationAxis;
     qreal m_angularSpeed;
     QQuaternion m_rotation;
-    QVector3D m_translation;
 
     QOpenGLShaderProgram m_program;
 };
