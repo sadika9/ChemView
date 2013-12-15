@@ -425,7 +425,7 @@ inline void OpenGLWidget::drawBonds()
             m_program.setUniformValue(m_modelLocation, model);
             m_program.setUniformValue(m_colorLocation, QVector3D(0.564706f, 0.564706f, 0.564706f));
 
-            // Draw cube geometry
+            // Draw cylinder geometry
             m_bondMesh.render();
         }
     }
