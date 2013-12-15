@@ -42,11 +42,11 @@ void Mesh::init(QString meshPath, QString vertexPos, QString vertexNormal, QOpen
 
     // Transfer vertex data to VBO
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[0]);
-    glBufferData(GL_ARRAY_BUFFER, m_indexed_vertices.size() * sizeof(QVector3D), &m_indexed_vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(QVector3D), &m_vertices[0], GL_STATIC_DRAW);
 
     // Transfer index data to VBO
     glBindBuffer(GL_ARRAY_BUFFER, m_vboIds[1]);
-    glBufferData(GL_ARRAY_BUFFER, m_indexed_normals.size() * sizeof(QVector3D), &m_indexed_normals[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(QVector3D), &m_normals[0], GL_STATIC_DRAW);
 
     // Transfer the indices to VBO
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboIds[2]);
@@ -90,13 +90,11 @@ void Mesh::render()
 bool Mesh::read(QString filePath)
 {
     // Variables to store vertices & normals
-    QVector<QVector3D> vertices;
-    QVector<QVector3D> normals;
+    QVector<QVector3D> vertices, normals;
 
     // Temporary variables to store values that read from file, (raw data)
     QVector<unsigned int> vertexIndices, normalIndices;
-    QVector<QVector3D> tempVertices;
-    QVector<QVector3D> tempNormals;
+    QVector<QVector3D> tempVertices, tempNormals;
 
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -106,8 +104,6 @@ bool Mesh::read(QString filePath)
     }
 
     QTextStream fs(&file);
-
-
     while (!fs.atEnd())
     {
         QString line = fs.readLine();
@@ -158,8 +154,8 @@ bool Mesh::read(QString filePath)
         QVector3D normal = tempNormals[ normalIndex-1 ];
 
         // Put the attributes in buffers
-        vertices.push_back(vertex);
-        normals.push_back(normal);
+        vertices.append(vertex);
+        normals.append(normal);
     }
 
 
@@ -181,9 +177,9 @@ bool Mesh::read(QString filePath)
         }
         else    // If not, it needs to be added in the output data.
         {
-            m_indexed_vertices.push_back(vertices[i]);
-            m_indexed_normals.push_back(normals[i]);
-            unsigned short newindex = (unsigned short) m_indexed_vertices.size() - 1;
+            m_vertices.push_back(vertices[i]);
+            m_normals.push_back(normals[i]);
+            unsigned short newindex = (unsigned short) m_vertices.size() - 1;
             m_indices.push_back(newindex);
             vertexToOutIndex[packed] = newindex;
         }

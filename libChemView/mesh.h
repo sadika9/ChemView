@@ -8,8 +8,6 @@
 
 class QOpenGLShaderProgram;
 
-struct PackedVertex;
-
 class Mesh : protected QOpenGLFunctions
 {
 public:
@@ -22,8 +20,8 @@ private:
     bool read(QString filePath);
 
     QVector<unsigned short> m_indices;
-    QVector<QVector3D> m_indexed_vertices;
-    QVector<QVector3D> m_indexed_normals;
+    QVector<QVector3D> m_vertices;
+    QVector<QVector3D> m_normals;
 
     GLuint m_vboIds[3];
 
