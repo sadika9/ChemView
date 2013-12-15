@@ -137,6 +137,8 @@ bool OBReader::toMolecule(OpenBabel::OBMol *obMol)
         return false;
     }
 
+    obMol->Center(); // Translate to the center of all coordinates
+
     m_molecule->setFormula(obMol->GetSpacedFormula().c_str());
     m_molecule->setTitle(obMol->GetTitle());
     m_molecule->setWeight(obMol->GetMolWt());
