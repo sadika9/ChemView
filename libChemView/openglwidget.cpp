@@ -253,7 +253,7 @@ void OpenGLWidget::initShaders()
 
 inline void OpenGLWidget::resetCamera()
 {
-    m_camera.setFieldOfView(60.0f);
+    m_camera.setFieldOfView(45.0f);
     m_camera.setNearPlane(0.1f);
     m_camera.setFarPlane(100.0f);
     m_camera.setPosition(QVector3D(0, 0, 15.f));
