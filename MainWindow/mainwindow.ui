@@ -37,8 +37,6 @@
     <addaction name="actionOpenFIle"/>
     <addaction name="actionOpenDirectory"/>
     <addaction name="separator"/>
-    <addaction name="actionSettings"/>
-    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menu_View">
