@@ -14,8 +14,6 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    enum class FileReader {CmlReader, ObReader};
-
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
@@ -26,20 +24,13 @@ public slots:
     void browseDir();
     void newSmiStringAction();
     void smiStringChanged(const QString &string);
-    void openSettingsDialog();
-    void setUseOpenBabel(bool useOpenBabel);
     void about();
-
-signals:
-    void useOpenBabel(bool);
 
 private:
     void initDirectoryBrowseModel();
     void setMolInfo(Molecule *mol);
 
     Ui::MainWindow *ui;
-
-    FileReader m_fileReader;
 
     QString m_filePath;
 };

@@ -1,10 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "cmlreader.h"
 #include "obreader.h"
 #include "molecule.h"
-#include "settingsdialog.h"
 #include "aboutdialog.h"
 
 #include <QFileDialog>
@@ -23,7 +21,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // default settings
     m_filePath = QDir::homePath();
-    m_fileReader = FileReader::ObReader;
     ui->molInfoDock->setVisible(true);
 
     initDirectoryBrowseModel();
@@ -34,10 +31,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOpenFIle, &QAction::triggered, this, &MainWindow::browseFile);
     connect(ui->actionOpenDirectory, &QAction::triggered, this, &MainWindow::browseDir);
     connect(ui->actionNewSmiString, &QAction::triggered, this, &MainWindow::newSmiStringAction);
-    connect(ui->actionSettings, &QAction::triggered, this, &MainWindow::openSettingsDialog);
     connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::about);
     connect(ui->smiEdit, &QLineEdit::textChanged, this, &MainWindow::smiStringChanged);
-    connect(this, &MainWindow::useOpenBabel, this, &MainWindow::setUseOpenBabel);
 
     // dont need these at this moment.
     ui->mainToolBar->hide();
@@ -52,36 +47,12 @@ void MainWindow::openFile(const QString &path)
 {
     m_filePath = path;
 
-    if (m_fileReader == FileReader::CmlReader)
-    {
-        QFile file(m_filePath);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        {
-            qDebug() << file.errorString();
-            return;
-        }
+    OBReader obReader;
+    obReader.readFile(m_filePath);
 
-        CmlReader cmlReader(&file);
-
-        if (!cmlReader.parse())
-        {
-            qDebug() << "Invalid CML file.";
-            return;
-        }
-
-        Molecule *mol = cmlReader.molecule();
-        ui->glWidget->setMolecule(mol);
-        setMolInfo(mol);
-    }
-    else // ObReader
-    {
-        OBReader obReader;
-        obReader.readFile(m_filePath);
-
-        Molecule *mol = obReader.molecule();
-        ui->glWidget->setMolecule(mol);
-        setMolInfo(mol);
-    }
+    Molecule *mol = obReader.molecule();
+    ui->glWidget->setMolecule(mol);
+    setMolInfo(mol);
 }
 
 void MainWindow::openFromFileIndex(const QModelIndex &index)
@@ -98,15 +69,8 @@ void MainWindow::browseFile()
 {
     QString filter;
 
-    if (m_fileReader == FileReader::ObReader)
-    {
-        filter = tr("Chemical Markup Language (*.cml);;SMILES (*.smi);;"
-                    "MDL MOL (*.mol);;All files (*)");
-    }
-    else
-    {
-        filter = tr("Chemical Markup Language (*.cml);;All files (*)");
-    }
+    filter = tr("Chemical Markup Language (*.cml);;SMILES (*.smi);;"
+                "MDL MOL (*.mol);;All files (*)");
 
     QString path =
             QFileDialog::getOpenFileName(this, tr("Open File"), m_filePath, filter);
@@ -134,17 +98,8 @@ void MainWindow::browseDir()
     m_filePath = path;
 
     QFileSystemModel *model =  (QFileSystemModel *) ui->treeView->model();
-
-    if (m_fileReader == FileReader::CmlReader)
-    {
-        model->setNameFilters(QStringList("*.cml"));
-        model->setNameFilterDisables(false);
-    }
-    else
-    {
-        model->setNameFilters(QStringList());
-        model->setNameFilterDisables(true);
-    }
+    model->setNameFilters(QStringList());
+    model->setNameFilterDisables(true);
 
     ui->treeView->setRootIndex(model->index(m_filePath));
     ui->directoryDock->setVisible(true);
@@ -159,38 +114,12 @@ void MainWindow::newSmiStringAction()
 
 void MainWindow::smiStringChanged(const QString &string)
 {
-    if (m_fileReader != FileReader::ObReader)
-        return;
-
     OBReader obReader;
     obReader.readSmiString(string);
 
     Molecule *mol = obReader.molecule();
     ui->glWidget->setMolecule(mol);
     setMolInfo(mol);
-}
-
-void MainWindow::openSettingsDialog()
-{
-    bool usingOpenBabel = (m_fileReader == FileReader::ObReader);
-
-    SettingsDialog dialog(usingOpenBabel, this);
-
-    if (dialog.exec() == QDialog::Rejected)
-    {
-        return;
-    }
-
-    emit useOpenBabel(dialog.isOpenBabelReaderChecked());
-}
-
-void MainWindow::setUseOpenBabel(bool useOpenBabel)
-{
-    m_fileReader = useOpenBabel ? FileReader::ObReader : FileReader::CmlReader;
-
-    ui->actionNewSmiString->setEnabled(useOpenBabel);
-    ui->actionSmilesDock->setEnabled(useOpenBabel);
-    ui->smiEdit->setEnabled(useOpenBabel);
 }
 
 void MainWindow::about()

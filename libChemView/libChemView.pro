@@ -11,7 +11,6 @@ HEADERS += \
     molecule.h \
     atom.h \
     bond.h \
-    cmlreader.h \
     openglwidget.h \
     mesh.h \
     obreader.h \
@@ -21,7 +20,6 @@ SOURCES += \
     molecule.cpp \
     atom.cpp \
     bond.cpp \
-    cmlreader.cpp \
     openglwidget.cpp \
     mesh.cpp \
     obreader.cpp \

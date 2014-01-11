@@ -16,15 +16,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    settingsdialog.cpp \
     aboutdialog.cpp
 
 HEADERS  += mainwindow.h \
-    settingsdialog.h \
     aboutdialog.h
 
 FORMS    += mainwindow.ui \
-    settingsdialog.ui \
     aboutdialog.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libChemView/release/ -lChemView
