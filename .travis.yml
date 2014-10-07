@@ -14,7 +14,7 @@ before_install:
   - travis_retry sudo apt-get update -qq
 
 install:
-  - travis_retry if [ "$CXX" == "g++" ]; then sudo apt-get -qq install g++-4.8; sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90; fi
+  - if [ "$CXX" == "g++" ]; then travis_retry sudo apt-get -qq install g++-4.8; sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90; fi
   - travis_retry sudo apt-get install -qq qt53tools qt53base
   - travis_retry sudo apt-get install -qq libopenbabel-dev
     
