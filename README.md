@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/sadika9/ChemView.svg?branch=master)](https://travis-ci.org/sadika9/ChemView)
+
 ChemView
 ========
 
